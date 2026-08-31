@@ -8,58 +8,64 @@ You can deploy today on a free `*.vercel.app` URL and add your real domain later
 
 ---
 
-## 1. Create the production database (Neon — free)
+## 1. Push the code to GitHub
 
-1. Sign up at <https://neon.tech> → **New Project** (name it `willary`, pick a
-   region close to Kenya, e.g. `aws-eu-central-1`).
-2. Open **Connection Details**. You need two strings:
-   - **Pooled** connection (host contains `-pooler`) → this is `DATABASE_URL`
-   - **Direct** connection (no `-pooler`) → this is `DIRECT_URL`
-   Both should end with `?sslmode=require`.
-
-Keep them handy for step 3.
-
-## 2. Push the code to GitHub
-
-From `willary-stem/`:
+From `willary-stem/` (repo is already initialised, branch `main`):
 
 ```bash
-git init
-git add -A
-git commit -m "Willary STEM site"
-gh repo create willary-stem --private --source . --push   # or create the repo on github.com and:
-# git remote add origin https://github.com/<you>/willary-stem.git
-# git branch -M main && git push -u origin main
+# create an empty repo on github.com first, then:
+git remote add origin https://github.com/<you>/willary-stem.git
+git push -u origin main
 ```
 
-## 3. Import into Vercel
+## 2. Import into Vercel
 
 1. <https://vercel.com> → **Add New… → Project** → import the `willary-stem` repo.
-2. Framework preset: **Next.js** (auto-detected). Root directory: `willary-stem`
-   **only if** you pushed the whole outer folder; if the repo root *is*
-   `willary-stem`, leave it as `./`.
-3. **Environment Variables** — add these (Production + Preview):
+2. Framework preset: **Next.js** (auto-detected). Root directory: leave `./` if
+   the repo root *is* `willary-stem`; set it to `willary-stem` if you pushed the
+   whole outer folder.
+3. Don't worry if the first deploy fails — there's no database yet. Add it next.
 
-   | Key | Value |
-   |---|---|
-   | `DATABASE_URL` | Neon **pooled** string |
-   | `DIRECT_URL` | Neon **direct** string |
-   | `AUTH_SECRET` | run `openssl rand -base64 32` and paste the result |
-   | `NEXT_PUBLIC_SITE_URL` | `https://<project>.vercel.app` (update after adding a domain) |
-   | `SEED_ADMIN_EMAIL` | your admin login email |
-   | `SEED_ADMIN_PASSWORD` | strong password, 10+ chars |
-   | `SEED_ADMIN_NAME` | `William Otwola` |
-   | `SEED_SECRET` | any long random string (used once, step 5) |
+## 3. Add the database (Neon via the Vercel integration)
 
-   Optional now, add when needed:
-   - `RESEND_API_KEY`, `NOTIFY_EMAIL_TO`, `EMAIL_FROM` — lead-notification emails
-   - `BLOB_READ_WRITE_TOKEN` — **required for admin media uploads** (Vercel → Storage → Blob → connect). Until set, uploads fail; pasting image URLs still works.
-   - `MPESA_*` — BuildFest M-Pesa payments (see `.env.example`). Set
-     `MPESA_CALLBACK_URL` to `https://<your-domain>/api/mpesa/callback?token=<MPESA_CALLBACK_SECRET>`.
+In the Vercel **project** → **Storage** tab → **Create Database** →
+**Neon** (Marketplace) → pick a region near Kenya → **Create**.
 
-4. **Deploy.** The build runs `vercel-build` → `prisma generate && prisma migrate deploy && next build`, so all tables are created automatically on first deploy.
+This provisions the Neon project and **auto-adds env vars** to the Vercel
+project — a pooled `DATABASE_URL` and a non-pooled URL (named
+`DATABASE_URL_UNPOOLED`, or on some versions `POSTGRES_URL_NON_POOLING`).
 
-## 4. First deploy done — you now have `https://<project>.vercel.app`
+Then add the remaining variables yourself — Vercel project →
+**Settings → Environment Variables** (Production **and** Preview):
+
+| Key | Value |
+|---|---|
+| `DIRECT_URL` | **paste the value of `DATABASE_URL_UNPOOLED`** (Prisma needs this name for migrations) |
+| `AUTH_SECRET` | run `openssl rand -base64 32` and paste the result |
+| `NEXT_PUBLIC_SITE_URL` | `https://<project>.vercel.app` (update after adding a domain) |
+| `SEED_ADMIN_EMAIL` | your admin login email |
+| `SEED_ADMIN_PASSWORD` | strong password, 10+ chars |
+| `SEED_ADMIN_NAME` | `William Otwola` |
+| `SEED_SECRET` | any long random string (used once, step 5) |
+
+Optional now, add when needed:
+- `RESEND_API_KEY`, `NOTIFY_EMAIL_TO`, `EMAIL_FROM` — lead-notification emails
+- `BLOB_READ_WRITE_TOKEN` — **required for admin media uploads**. Storage tab →
+  **Create Database → Blob** and it's added automatically. Until then, uploads
+  fail but pasting image URLs still works.
+- `MPESA_*` — BuildFest M-Pesa payments (see `.env.example`). Set
+  `MPESA_CALLBACK_URL` to
+  `https://<your-domain>/api/mpesa/callback?token=<MPESA_CALLBACK_SECRET>`.
+
+## 4. Redeploy
+
+Vercel project → **Deployments** → **Redeploy** the latest (or just `git push`).
+The build runs `vercel-build` → `prisma generate && prisma migrate deploy &&
+next build`, so every table is created automatically. You now have
+`https://<project>.vercel.app`.
+
+> If a deploy ever fails with a "prepared statement" error, append
+> `?pgbouncer=true` to `DATABASE_URL` in Vercel and redeploy.
 
 ## 5. Seed the production database (once)
 
@@ -75,8 +81,9 @@ tables that already have rows). Then sign in at
 `SEED_ADMIN_PASSWORD` and change the password / add real staff under
 **Admin → Staff & roles**.
 
-_Alternative:_ run the seed from your machine against the Neon URL:
-`DATABASE_URL="<neon-direct-url>" npm run db:seed`
+_Alternative:_ pull the prod env locally and seed from your machine —
+`npx vercel env pull .env.production` then
+`DATABASE_URL="$(grep DATABASE_URL_UNPOOLED .env.production | cut -d= -f2- | tr -d '\"')" npm run db:seed`
 
 ## 6. Later — add your real domain
 
