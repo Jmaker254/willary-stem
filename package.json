@@ -1,0 +1,49 @@
+{
+  "name": "willary-stem",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "predev": "node scripts/db-up.mjs",
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "postinstall": "prisma generate",
+    "db:up": "node scripts/db-up.mjs",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:reset": "prisma migrate reset"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "dependencies": {
+    "@prisma/client": "6.16.2",
+    "@vercel/blob": "^2.8.0",
+    "bcryptjs": "^3.0.3",
+    "jose": "^6.2.10",
+    "marked": "^18.0.11",
+    "next": "16.3.3",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "resend": "^6.25.0",
+    "zod": "^4.5.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.3",
+    "prisma": "6.16.2",
+    "tsx": "^4.20.0",
+    "typescript": "^5"
+  }
+}

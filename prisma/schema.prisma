@@ -1,0 +1,435 @@
+// Willary STEM — data model
+// Postgres (Neon). Run `npm run db:migrate` after edits.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Auth & staff
+// ---------------------------------------------------------------------------
+
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  name         String
+  passwordHash String
+  role         Role       @default(VIEWER)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  auditLogs    AuditLog[]
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  entity    String
+  entityId  String?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Leads / operations
+// ---------------------------------------------------------------------------
+
+enum SubmissionType {
+  CONTACT
+  PARTNER
+  BUILDFEST_ENQUIRY
+  GENERAL
+}
+
+enum SubmissionStatus {
+  NEW
+  READ
+  ARCHIVED
+  SPAM
+}
+
+model Submission {
+  id           String           @id @default(cuid())
+  type         SubmissionType
+  status       SubmissionStatus @default(NEW)
+  name         String
+  email        String
+  organisation String?
+  phone        String?
+  topic        String?
+  message      String
+  meta         Json?
+  ip           String?
+  userAgent    String?
+  createdAt    DateTime         @default(now())
+
+  @@index([type, status])
+  @@index([createdAt])
+}
+
+enum TicketType {
+  STUDENT
+  GENERAL
+  TEAM
+  SCHOOL_GROUP
+  EXHIBITOR
+}
+
+enum RegistrationStatus {
+  PENDING
+  CONFIRMED
+  WAITLIST
+  CANCELLED
+}
+
+model EventRegistration {
+  id            String             @id @default(cuid())
+  event         String             @default("BUILD_FEST_2026")
+  ticketType    TicketType
+  status        RegistrationStatus @default(PENDING)
+  name          String
+  email         String
+  phone         String?
+  organisation  String?
+  teamName      String?
+  teamSize      Int?
+  members       String[]           @default([])
+  trackInterest String?
+  quantity      Int                @default(1)
+  amount        Int                @default(0)
+  paidAt        DateTime?
+  notes         String?
+  createdAt     DateTime           @default(now())
+  payments      Payment[]
+
+  @@index([event, status])
+  @@index([createdAt])
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+  CANCELLED
+}
+
+model Payment {
+  id                String            @id @default(cuid())
+  registrationId    String
+  registration      EventRegistration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  provider          String            @default("MPESA")
+  status            PaymentStatus     @default(PENDING)
+  amount            Int
+  phone             String
+  accountRef        String
+  publicRef         String            @unique
+  merchantRequestId String?
+  checkoutRequestId String?           @unique
+  mpesaReceipt      String?
+  resultCode        Int?
+  resultDesc        String?
+  rawCallback       Json?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([registrationId])
+  @@index([status])
+}
+
+enum SubscriberStatus {
+  PENDING
+  ACTIVE
+  UNSUBSCRIBED
+}
+
+model Subscriber {
+  id             String           @id @default(cuid())
+  email          String           @unique
+  name           String?
+  status         SubscriberStatus @default(PENDING)
+  tags           String[]         @default([])
+  source         String?
+  token          String           @unique
+  createdAt      DateTime         @default(now())
+  confirmedAt    DateTime?
+  unsubscribedAt DateTime?
+
+  @@index([status])
+}
+
+// ---------------------------------------------------------------------------
+// Editable site content (mini-CMS)
+// ---------------------------------------------------------------------------
+
+enum ProjectCategory {
+  ROBOT
+  PCB
+  IOT
+}
+
+model Project {
+  id        String          @id @default(cuid())
+  slug      String          @unique
+  title     String
+  category  ProjectCategory
+  summary   String
+  body      String?
+  tech      String[]        @default([])
+  imageUrl  String?
+  featured  Boolean         @default(false)
+  published Boolean         @default(true)
+  order     Int             @default(0)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([published, order])
+}
+
+enum EventStatus {
+  PAST
+  UPCOMING
+}
+
+model Event {
+  id        String      @id @default(cuid())
+  slug      String      @unique
+  title     String
+  dateText  String
+  status    EventStatus @default(UPCOMING)
+  summary   String
+  body      String?
+  stats     Json?
+  photos    String[]    @default([])
+  videoUrl  String?
+  albumUrl  String?
+  posterUrl String?
+  published Boolean     @default(true)
+  order     Int         @default(0)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([published, order])
+}
+
+model CommunityVisit {
+  id            String   @id @default(cuid())
+  label         String
+  place         String
+  childrenCount Int?
+  dateText      String?
+  summary       String
+  photos        String[] @default([])
+  albumUrl      String?
+  published     Boolean  @default(true)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([published, order])
+}
+
+model School {
+  id        String   @id @default(cuid())
+  name      String
+  note      String?
+  published Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, order])
+}
+
+model SponsorTier {
+  id        String   @id @default(cuid())
+  name      String
+  price     String
+  benefits  String[] @default([])
+  featured  Boolean  @default(false)
+  published Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, order])
+}
+
+model SiteStat {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  num       String
+  label     String
+  group     String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([group, order])
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  photoUrl  String?
+  bio       String?
+  published Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, order])
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  quote     String
+  photoUrl  String?
+  eventTag  String   @default("coffee-and-solder")
+  published Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([eventTag, published, order])
+}
+
+model Partner {
+  id        String   @id @default(cuid())
+  name      String
+  logoUrl   String?
+  url       String?
+  published Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, order])
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model PageImage {
+  slot      String   @id
+  url       String?
+  alt       String?
+  updatedAt DateTime @updatedAt
+}
+
+enum ClassMode {
+  ONLINE
+  PHYSICAL
+  HYBRID
+}
+
+enum CohortStatus {
+  OPEN
+  UPCOMING
+  FULL
+  CLOSED
+}
+
+model Cohort {
+  id           String         @id @default(cuid())
+  title        String
+  program      String
+  mode         ClassMode      @default(PHYSICAL)
+  startText    String
+  scheduleText String
+  location     String?
+  ageRange     String?
+  priceKes     String?
+  capacity     Int?
+  summary      String
+  status       CohortStatus   @default(OPEN)
+  published    Boolean        @default(true)
+  order        Int            @default(0)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  bookings     CohortBooking[]
+
+  @@index([published, status, order])
+}
+
+enum BookingStatus {
+  NEW
+  CONFIRMED
+  WAITLIST
+  CANCELLED
+}
+
+model CohortBooking {
+  id          String        @id @default(cuid())
+  cohortId    String
+  cohort      Cohort        @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  name        String
+  email       String
+  phone       String?
+  learnerName String?
+  learnerAge  String?
+  notes       String?
+  status      BookingStatus @default(NEW)
+  createdAt   DateTime      @default(now())
+
+  @@index([cohortId, status])
+  @@index([createdAt])
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  category    String    @default("blog") // "blog" | "news"
+  excerpt     String
+  body        String
+  coverUrl    String?
+  author      String?
+  published   Boolean   @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([published, publishedAt])
+  @@index([category, published, publishedAt])
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+model MediaAsset {
+  id           String    @id @default(cuid())
+  url          String
+  type         MediaType
+  filename     String
+  mimeType     String
+  size         Int
+  storage      String    @default("local") // "local" | "blob"
+  uploadedById String?
+  createdAt    DateTime  @default(now())
+
+  @@index([type, createdAt])
+}
