@@ -32,15 +32,15 @@ In the Vercel **project** → **Storage** tab → **Create Database** →
 **Neon** (Marketplace) → pick a region near Kenya → **Create**.
 
 This provisions the Neon project and **auto-adds env vars** to the Vercel
-project — a pooled `DATABASE_URL` and a non-pooled URL (named
-`DATABASE_URL_UNPOOLED`, or on some versions `POSTGRES_URL_NON_POOLING`).
+project — including `DATABASE_URL` (pooled) and `DATABASE_URL_UNPOOLED`
+(non-pooled). The Prisma schema reads both of those names directly, so **no
+database env var needs setting by hand.**
 
-Then add the remaining variables yourself — Vercel project →
+Then add the remaining variables — Vercel project →
 **Settings → Environment Variables** (Production **and** Preview):
 
 | Key | Value |
 |---|---|
-| `DIRECT_URL` | **paste the value of `DATABASE_URL_UNPOOLED`** (Prisma needs this name for migrations) |
 | `AUTH_SECRET` | run `openssl rand -base64 32` and paste the result |
 | `NEXT_PUBLIC_SITE_URL` | `https://<project>.vercel.app` (update after adding a domain) |
 | `SEED_ADMIN_EMAIL` | your admin login email |
