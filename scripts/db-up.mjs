@@ -3,6 +3,18 @@
 // worst case it prints how to start the DB by hand.
 import { spawnSync, spawn } from "node:child_process";
 import net from "node:net";
+import { readFileSync } from "node:fs";
+
+// Node doesn't auto-load .env for plain scripts — read DATABASE_URL ourselves.
+function envDatabaseUrl() {
+  if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
+  try {
+    const m = readFileSync(".env", "utf8").match(/^DATABASE_URL\s*=\s*"?([^"\n]+)"?/m);
+    return m ? m[1] : "";
+  } catch {
+    return "";
+  }
+}
 
 const PORT = 51214; // raw TCP port used by `prisma dev`
 
@@ -21,6 +33,13 @@ function portOpen(port) {
 }
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Only relevant when DATABASE_URL points at a local prisma dev server.
+const url = envDatabaseUrl();
+if (url && !/localhost|127\.0\.0\.1/.test(url)) {
+  console.log("[db] DATABASE_URL is remote (Neon) — nothing to start");
+  process.exit(0);
+}
 
 if (await portOpen(PORT)) {
   console.log("[db] local Prisma Postgres already running");
