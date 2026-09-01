@@ -5,10 +5,16 @@ function initials(name: string) {
   return name.replace(/[^A-Za-z0-9]/g, "").slice(0, 4).toUpperCase();
 }
 
-export default function PartnerWall({ partners }: { partners: Partner[] }) {
+export default function PartnerWall({
+  partners,
+  bare = false,
+}: {
+  partners: Partner[];
+  bare?: boolean;
+}) {
   if (partners.length === 0) return null;
   return (
-    <div className="partner-wall">
+    <div className={`partner-wall${bare ? " partner-wall--bare" : ""}`}>
       {partners.map((p) => {
         const inner = p.logoUrl ? (
           <Image

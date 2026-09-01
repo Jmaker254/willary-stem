@@ -287,7 +287,7 @@ export default async function HomePage() {
               <p className="eyebrow" style={{ marginTop: 36 }}>
                 Partners &amp; collaborators
               </p>
-              <PartnerWall partners={partners} />
+              <PartnerWall partners={partners} bare />
             </>
           )}
         </div>
