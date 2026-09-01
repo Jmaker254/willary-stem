@@ -4,6 +4,7 @@ import Image from "next/image";
 import Slideshow from "@/components/site/Slideshow";
 import Testimonials from "@/components/site/Testimonials";
 import ComingSoonButton from "@/components/site/ComingSoonButton";
+import PageHero from "@/components/site/PageHero";
 import { ticketsLive } from "@/lib/flags";
 import { embedUrl, isVideoUrl } from "@/lib/media";
 import {
@@ -32,21 +33,16 @@ export default async function EventsPage() {
 
   return (
     <>
-      <section
-        className={`page-hero${heroBg ? " has-bg" : ""}`}
-        style={heroBg ? { backgroundImage: `url(${heroBg})` } : undefined}
-      >
-        <div className="container">
-          <p className="breadcrumb">
-            <Link href="/">Home</Link> » Events
-          </p>
-          <h1>Events</h1>
-          <p>
-            Willary STEM runs the gatherings where Nairobi&apos;s builders meet,
-            compete, and show their work.
-          </p>
-        </div>
-      </section>
+      <PageHero bg={heroBg}>
+        <p className="breadcrumb">
+          <Link href="/">Home</Link> » Events
+        </p>
+        <h1>Events</h1>
+        <p>
+          Willary STEM runs the gatherings where Nairobi&apos;s builders meet,
+          compete, and show their work.
+        </p>
+      </PageHero>
 
       {/* Upcoming — animated */}
       {upcoming.length > 0 && (

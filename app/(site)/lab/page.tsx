@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Media from "@/components/site/Media";
-import { getProjects } from "@/lib/content";
+import PageHero from "@/components/site/PageHero";
+import { getProjects, getPageImages } from "@/lib/content";
 import type { Project } from "@/lib/types";
 
 export const metadata: Metadata = {
@@ -18,22 +19,24 @@ const SECTIONS: { key: Project["category"]; eyebrow: string; heading: string }[]
   ];
 
 export default async function LabPage() {
-  const projects = await getProjects();
+  const [projects, pageImages] = await Promise.all([
+    getProjects(),
+    getPageImages(),
+  ]);
+  const heroBg = pageImages["lab_hero"]?.url || null;
 
   return (
     <>
-      <section className="page-hero">
-        <div className="container">
-          <p className="breadcrumb">
-            <Link href="/">Home</Link> » Robotics &amp; Innovation Lab
-          </p>
-          <h1>Robotics &amp; Innovation Lab</h1>
-          <p>
-            The proof-of-work. Original robots, custom circuit boards, and IoT
-            systems that are actually deployed and running in the field.
-          </p>
-        </div>
-      </section>
+      <PageHero bg={heroBg}>
+        <p className="breadcrumb">
+          <Link href="/">Home</Link> » Robotics &amp; Innovation Lab
+        </p>
+        <h1>Robotics &amp; Innovation Lab</h1>
+        <p>
+          The proof-of-work. Original robots, custom circuit boards, and IoT
+          systems that are actually deployed and running in the field.
+        </p>
+      </PageHero>
 
       {SECTIONS.map((sec, i) => {
         const items = projects.filter((p) => p.category === sec.key);

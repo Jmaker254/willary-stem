@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Testimonials from "@/components/site/Testimonials";
+import PageHero from "@/components/site/PageHero";
 import CohortBookingForm from "@/components/forms/CohortBookingForm";
 import {
   getSchools,
@@ -34,21 +35,16 @@ export default async function ProgramsPage() {
 
   return (
     <>
-      <section
-        className={`page-hero${heroBg ? " has-bg" : ""}`}
-        style={heroBg ? { backgroundImage: `url(${heroBg})` } : undefined}
-      >
-        <div className="container">
-          <p className="breadcrumb">
-            <Link href="/">Home</Link> » Programs
-          </p>
-          <h1>Programs</h1>
-          <p>
-            Coding, electronics, and robotics — online or in person. Book an
-            upcoming class, or bring a program to your school.
-          </p>
-        </div>
-      </section>
+      <PageHero bg={heroBg}>
+        <p className="breadcrumb">
+          <Link href="/">Home</Link> » Programs
+        </p>
+        <h1>Programs</h1>
+        <p>
+          Coding, electronics, and robotics — online or in person. Book an
+          upcoming class, or bring a program to your school.
+        </p>
+      </PageHero>
 
       {/* Curriculum approach */}
       <section className="section">

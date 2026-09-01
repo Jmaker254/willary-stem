@@ -3,6 +3,7 @@ import Link from "next/link";
 import SlotImage from "@/components/site/SlotImage";
 import PartnerWall from "@/components/site/PartnerWall";
 import ComingSoonButton from "@/components/site/ComingSoonButton";
+import HeroBgSlides from "@/components/site/HeroBgSlides";
 import { ticketsLive } from "@/lib/flags";
 import {
   getSettings,
@@ -39,10 +40,15 @@ export default async function HomePage() {
       getPageImages(),
     ]);
 
+  const homeSlides = ["home_hero", "home_hero_2", "home_hero_3", "home_hero_4"]
+    .map((slot) => pageImages[slot]?.url)
+    .filter((url): url is string => Boolean(url));
+
   return (
     <>
       {/* Hero */}
-      <section className="hero">
+      <section className={`hero${homeSlides.length > 0 ? " has-slides" : ""}`}>
+        {homeSlides.length > 0 && <HeroBgSlides images={homeSlides} />}
         <div className="container hero-grid">
           <div>
             <span className="eyebrow">
@@ -72,13 +78,15 @@ export default async function HomePage() {
               ))}
             </div>
           </div>
-          <SlotImage
-            images={pageImages}
-            slot="home_hero"
-            label="Students building robots with local materials"
-            variant="tall"
-            priority
-          />
+          {homeSlides.length === 0 && (
+            <SlotImage
+              images={pageImages}
+              slot="home_hero"
+              label="Students building robots with local materials"
+              variant="tall"
+              priority
+            />
+          )}
         </div>
       </section>
 

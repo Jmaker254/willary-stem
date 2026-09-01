@@ -61,8 +61,11 @@ export default function Header({
           </ul>
         </nav>
         <div className="nav-actions">
-          <Link className="btn btn--primary always" href="/build-fest">
+          <Link className="btn btn--primary always nav-cta" href="/build-fest">
             BuildFest 2026
+            <span className="nav-badge" aria-hidden>
+              New
+            </span>
           </Link>
           <button
             className="nav-toggle"

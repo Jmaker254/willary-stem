@@ -113,6 +113,31 @@ img { max-width: 100%; display: block; }
 .nav-links a { color: var(--ink); font-weight: 500; font-size: 0.95rem; }
 .nav-links a:hover, .nav-links a[aria-current="page"] { color: var(--blue); text-decoration: none; }
 .nav-actions { display: flex; align-items: center; gap: 14px; }
+.nav-cta { position: relative; overflow: visible; }
+.nav-badge {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 999px;
+  line-height: 1.4;
+  box-shadow: 0 0 0 2px #fff;
+  animation: nav-badge-breathe 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes nav-badge-breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.7; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-badge { animation: none; }
+}
 .nav-toggle { display: none; background: none; border: 0; width: 42px; height: 42px; cursor: pointer; color: var(--ink); }
 .nav-toggle svg { width: 26px; height: 26px; }
 
@@ -130,6 +155,46 @@ img { max-width: 100%; display: block; }
 .hero-stats { display: flex; gap: 32px; margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--line); }
 .hero-stats .num { font-size: 1.6rem; font-weight: 800; color: var(--ink); }
 .hero-stats .lbl { font-size: 0.85rem; }
+
+/* --- Full-screen rotating hero background (home) --- */
+.hero.has-slides {
+  position: relative;
+  overflow: hidden;
+  background: var(--ink);
+  color: #e2e8f0;
+  padding: 140px 0 120px;
+  min-height: 640px;
+  display: flex;
+  align-items: center;
+}
+.hero-bg-slides { position: absolute; inset: 0; z-index: 0; }
+.hero-bg-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+.hero-bg-slide.is-active { opacity: 1; }
+.hero-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.5), rgba(15, 23, 42, 0.86)),
+    radial-gradient(60% 60% at 85% 10%, rgba(27, 92, 255, 0.3), transparent 60%);
+}
+.hero.has-slides > .container { position: relative; z-index: 1; }
+.hero.has-slides .hero-grid { grid-template-columns: 1fr; max-width: 820px; gap: 0; }
+.hero.has-slides .media { display: none; }
+.hero.has-slides .eyebrow { color: #9db8ff; }
+.hero.has-slides h1,
+.hero.has-slides p.lead,
+.hero.has-slides .hero-stats .num { color: #fff; }
+.hero.has-slides .hero-stats { border-top-color: rgba(255, 255, 255, 0.22); }
+.hero.has-slides .hero-stats .lbl { color: rgba(255, 255, 255, 0.82); }
+.hero.has-slides .btn--ghost { color: #fff; border-color: rgba(255, 255, 255, 0.5); }
+.hero.has-slides .btn--ghost:hover { background: rgba(255, 255, 255, 0.12); }
 
 /* ---------- Media placeholders / images ---------- */
 .media {
@@ -257,9 +322,18 @@ img { max-width: 100%; display: block; }
 
 /* ---------- Page hero (inner pages) ---------- */
 .page-hero { position: relative; background: var(--ink); color: #cbd5e1; padding: 64px 0; overflow: hidden; }
-.page-hero.has-bg { background-size: cover; background-position: center; background-repeat: no-repeat; padding: 88px 0; }
-.page-hero.has-bg::before {
-  content: "";
+.page-hero.has-bg { padding: 96px 0; }
+.page-hero-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.page-hero-overlay {
   position: absolute;
   inset: 0;
   background:
@@ -267,6 +341,7 @@ img { max-width: 100%; display: block; }
     radial-gradient(70% 60% at 15% 0%, rgba(27, 92, 255, 0.28), transparent 65%);
 }
 .page-hero > .container { position: relative; z-index: 1; }
+.page-hero.has-bg p { color: rgba(255, 255, 255, 0.9); }
 .page-hero h1 { color: #fff; margin-bottom: 8px; }
 .breadcrumb { font-size: 0.85rem; color: #94a3b8; }
 .breadcrumb a { color: #cbd5e1; }
@@ -1013,7 +1088,14 @@ table.data tbody tr:hover td { background: var(--blue-tint); }
 .section--photo > .container { position: relative; }
 .section--photo h2,
 .section--photo .eyebrow { color: #fff; }
+.section--photo .section-head p { color: rgba(255, 255, 255, 0.92); font-size: 1.1rem; }
 .section--photo .tier { color: var(--ink); }
+/* cards stay opaque white — reset the inherited light section color so their
+   text (which has no color of its own) doesn't render pale-on-white */
+.section--photo .card { color: var(--body); }
+.section--photo .card h3 { font-size: 1.3rem; }
+.section--photo .card p { font-size: 1.02rem; }
+.section--photo .chips li { font-size: 0.85rem; }
 
 /* --- Class cohorts --- */
 .cohort-card { display: flex; flex-direction: column; }

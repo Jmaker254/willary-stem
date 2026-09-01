@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import SlotImage from "@/components/site/SlotImage";
+import PageHero from "@/components/site/PageHero";
 import TeamGrid from "@/components/site/TeamGrid";
 import { getSettings, getSiteStats, getTeam, getPageImages } from "@/lib/content";
 
@@ -18,20 +19,20 @@ export default async function AboutPage() {
     getPageImages(),
   ]);
 
+  const aboutHeroBg = pageImages["about_hero"]?.url || null;
+
   return (
     <>
-      <section className="page-hero">
-        <div className="container">
-          <p className="breadcrumb">
-            <Link href="/">Home</Link> » About
-          </p>
-          <h1>About Willary STEM</h1>
-          <p>
-            A Nairobi-based STEM education and robotics company — founded, built,
-            and run by one person who ships real work.
-          </p>
-        </div>
-      </section>
+      <PageHero bg={aboutHeroBg}>
+        <p className="breadcrumb">
+          <Link href="/">Home</Link> » About
+        </p>
+        <h1>About Willary STEM</h1>
+        <p>
+          A Nairobi-based STEM education and robotics company — founded, built,
+          and run by one person who ships real work.
+        </p>
+      </PageHero>
 
       <section className="section">
         <div className="container">

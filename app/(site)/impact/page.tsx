@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PhotoWall from "@/components/site/PhotoWall";
+import PageHero from "@/components/site/PageHero";
 import { getCommunityVisits, getSettings, getPageImages } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -22,22 +23,17 @@ export default async function ImpactPage() {
 
   return (
     <>
-      <section
-        className={`page-hero${heroBg ? " has-bg" : ""}`}
-        style={heroBg ? { backgroundImage: `url(${heroBg})` } : undefined}
-      >
-        <div className="container">
-          <p className="breadcrumb">
-            <Link href="/">Home</Link> » Community Impact
-          </p>
-          <h1>Community Impact</h1>
-          <p>
-            Robots don&apos;t only belong in well-resourced schools. We take them
-            to community centres and estates where children have never had
-            hands-on access.
-          </p>
-        </div>
-      </section>
+      <PageHero bg={heroBg}>
+        <p className="breadcrumb">
+          <Link href="/">Home</Link> » Community Impact
+        </p>
+        <h1>Community Impact</h1>
+        <p>
+          Robots don&apos;t only belong in well-resourced schools. We take them
+          to community centres and estates where children have never had
+          hands-on access.
+        </p>
+      </PageHero>
 
       <section className="section">
         <div className="container highlight">
