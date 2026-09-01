@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import SlotImage from "@/components/site/SlotImage";
+import PageHero from "@/components/site/PageHero";
 import ContactForm from "@/components/forms/ContactForm";
 import SocialLinks from "@/components/site/SocialLinks";
 import { getSettings, getPageImages } from "@/lib/content";
@@ -19,18 +20,16 @@ export default async function ContactPage() {
 
   return (
     <>
-      <section className="page-hero">
-        <div className="container">
-          <p className="breadcrumb">
-            <Link href="/">Home</Link> » Contact
-          </p>
-          <h1>Contact</h1>
-          <p>
-            Schools, sponsors, exhibitors, and anyone who wants a robot or
-            hardware built — get in touch.
-          </p>
-        </div>
-      </section>
+      <PageHero bg={pageImages["contact_hero"]?.url || null}>
+        <p className="breadcrumb">
+          <Link href="/">Home</Link> » Contact
+        </p>
+        <h1>Contact</h1>
+        <p>
+          Schools, sponsors, exhibitors, and anyone who wants a robot or
+          hardware built — get in touch.
+        </p>
+      </PageHero>
 
       <section className="section">
         <div className="container contact-grid">

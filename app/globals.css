@@ -322,7 +322,12 @@ img { max-width: 100%; display: block; }
 
 /* ---------- Page hero (inner pages) ---------- */
 .page-hero { position: relative; background: var(--ink); color: #cbd5e1; padding: 64px 0; overflow: hidden; }
-.page-hero.has-bg { padding: 96px 0; }
+.page-hero.has-bg {
+  padding: 132px 0;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+}
 .page-hero-media {
   position: absolute;
   inset: 0;
@@ -605,7 +610,8 @@ table.data tbody tr:hover td { background: var(--blue-tint); }
 
 /* --- Past events: alternating media + copy --- */
 .past-events { display: grid; gap: 48px; }
-.past-event { align-items: center; }
+.past-event { align-items: center; grid-template-columns: 1.5fr 1fr; }
+.past-event--flip { grid-template-columns: 1fr 1.5fr; }
 .past-event--flip .past-event-media { order: 2; }
 .past-event-body .stat-badges { margin-top: 18px; }
 
@@ -618,7 +624,7 @@ table.data tbody tr:hover td { background: var(--blue-tint); }
   border: 1px solid rgba(27, 92, 255, 0.12);
   background: linear-gradient(135deg, #dbe6ff, #eef3ff);
 }
-.slideshow-track { position: relative; aspect-ratio: 4 / 3; }
+.slideshow-track { position: relative; aspect-ratio: 16 / 9; }
 .slide {
   position: absolute;
   inset: 0;
@@ -1222,7 +1228,9 @@ table.data tbody tr:hover td { background: var(--blue-tint); }
   .statrow { grid-template-columns: repeat(2, 1fr); }
   .project { grid-template-columns: 1fr; gap: 16px; }
   .project .media { max-width: 320px; }
+  .past-event, .past-event--flip { grid-template-columns: 1fr; }
   .past-event--flip .past-event-media { order: 0; }
+  .page-hero.has-bg { padding: 104px 0; min-height: 340px; }
   .admin-cards { grid-template-columns: repeat(2, 1fr); }
   .admin { grid-template-columns: 1fr; }
   .admin-side { flex-direction: row; flex-wrap: wrap; align-items: center; }
@@ -1231,6 +1239,7 @@ table.data tbody tr:hover td { background: var(--blue-tint); }
 
 @media (max-width: 720px) {
   .section { padding: 60px 0; }
+  .page-hero.has-bg { padding: 80px 0; min-height: 280px; }
   .past-events { gap: 32px; }
   .cta-band { padding: 40px 24px; }
   .newsletter form { flex-direction: column; }

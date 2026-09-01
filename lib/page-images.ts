@@ -15,6 +15,8 @@ export const PAGE_IMAGE_SLOTS: { slot: string; label: string; hint: string }[] =
   { slot: "lab_hero", label: "Lab — hero banner background", hint: "Upload an image, or a short looping video/clip of a robot in motion — it autoplays muted behind the banner text." },
   { slot: "events_hero", label: "Events — hero banner background", hint: "Wide event photo (Coffee & Solder, WRO). Sits behind the dark page-hero banner." },
   { slot: "impact_hero", label: "Impact — hero banner background", hint: "Wide photo from a community robot visit. Sits behind the dark page-hero banner." },
+  { slot: "partner_hero", label: "Partner — hero banner background", hint: "Wide shot — a sponsor activation, a busy event floor. Sits behind the dark page-hero banner." },
+  { slot: "contact_hero", label: "Contact — hero banner background", hint: "Wide shot of the team or workspace. Sits behind the dark page-hero banner." },
   { slot: "buildfest_hero", label: "BuildFest — hero (when no poster set)", hint: "Used only if the BuildFest event has no full-screen poster." },
   { slot: "buildfest_cleaner", label: "BuildFest — 'a cleaner Nairobi'", hint: "Environment / clean-tech image for the challenge section." },
   { slot: "buildfest_exhibitor_bg", label: "BuildFest — exhibitor section background", hint: "Wide shot of exhibitor booths / a busy hall." },

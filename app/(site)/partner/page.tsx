@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PartnerForm from "@/components/forms/PartnerForm";
 import PartnerWall from "@/components/site/PartnerWall";
+import PageHero from "@/components/site/PageHero";
 import {
   getSettings,
   getSiteStats,
   getSponsorTiers,
   getPartners,
+  getPageImages,
 } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -31,27 +33,26 @@ const EXHIBITOR = [
 ];
 
 export default async function PartnerPage() {
-  const [settings, stats, tiers, partners] = await Promise.all([
+  const [settings, stats, tiers, partners, pageImages] = await Promise.all([
     getSettings(),
     getSiteStats("partner"),
     getSponsorTiers(),
     getPartners(),
+    getPageImages(),
   ]);
 
   return (
     <>
-      <section className="page-hero">
-        <div className="container">
-          <p className="breadcrumb">
-            <Link href="/">Home</Link> » Partner With Us
-          </p>
-          <h1>Partner With Us</h1>
-          <p>
-            Back real, visible STEM work in Kenya — school programs, community
-            robot visits, and Willary BuildFest 2026.
-          </p>
-        </div>
-      </section>
+      <PageHero bg={pageImages["partner_hero"]?.url || null}>
+        <p className="breadcrumb">
+          <Link href="/">Home</Link> » Partner With Us
+        </p>
+        <h1>Partner With Us</h1>
+        <p>
+          Back real, visible STEM work in Kenya — school programs, community
+          robot visits, and Willary BuildFest 2026.
+        </p>
+      </PageHero>
 
       <section className="section">
         <div className="container">
