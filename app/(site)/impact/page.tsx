@@ -58,10 +58,7 @@ export default async function ImpactPage() {
             </Link>
           </div>
           <div>
-            <div
-              className="statrow"
-              style={{ gridTemplateColumns: "1fr 1fr" }}
-            >
+            <div className="statrow statrow--2">
               <div>
                 <div className="num">66</div>
                 <div className="lbl">Children reached (first visit)</div>

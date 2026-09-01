@@ -53,7 +53,7 @@ export default async function ProgramsPage() {
           <div>
             <span className="eyebrow">Curriculum Approach</span>
             <h2>How a Willary program runs</h2>
-            <div className="steps" style={{ gridTemplateColumns: "1fr 1fr", marginTop: 16 }}>
+            <div className="steps steps--2" style={{ marginTop: 16 }}>
               <div className="step">
                 <h3>Chess &amp; thinking</h3>
                 <p>Sessions open with chess and structured problem-solving.</p>
