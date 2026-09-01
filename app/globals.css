@@ -256,7 +256,17 @@ img { max-width: 100%; display: block; }
 .hp-field { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
 /* ---------- Page hero (inner pages) ---------- */
-.page-hero { background: var(--ink); color: #cbd5e1; padding: 64px 0; }
+.page-hero { position: relative; background: var(--ink); color: #cbd5e1; padding: 64px 0; overflow: hidden; }
+.page-hero.has-bg { background-size: cover; background-position: center; background-repeat: no-repeat; padding: 88px 0; }
+.page-hero.has-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.74), rgba(15, 23, 42, 0.88)),
+    radial-gradient(70% 60% at 15% 0%, rgba(27, 92, 255, 0.28), transparent 65%);
+}
+.page-hero > .container { position: relative; z-index: 1; }
 .page-hero h1 { color: #fff; margin-bottom: 8px; }
 .breadcrumb { font-size: 0.85rem; color: #94a3b8; }
 .breadcrumb a { color: #cbd5e1; }

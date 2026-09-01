@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PhotoWall from "@/components/site/PhotoWall";
-import { getCommunityVisits, getSettings } from "@/lib/content";
+import { getCommunityVisits, getSettings, getPageImages } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Community Impact",
@@ -10,17 +10,22 @@ export const metadata: Metadata = {
 };
 
 export default async function ImpactPage() {
-  const [visits, settings] = await Promise.all([
+  const [visits, settings, pageImages] = await Promise.all([
     getCommunityVisits(),
     getSettings(),
+    getPageImages(),
   ]);
   const albumUrl =
     visits.find((v) => v.albumUrl)?.albumUrl || settings.photosAlbumUrl;
   const media = visits.flatMap((v) => v.photos);
+  const heroBg = pageImages["impact_hero"]?.url || null;
 
   return (
     <>
-      <section className="page-hero">
+      <section
+        className={`page-hero${heroBg ? " has-bg" : ""}`}
+        style={heroBg ? { backgroundImage: `url(${heroBg})` } : undefined}
+      >
         <div className="container">
           <p className="breadcrumb">
             <Link href="/">Home</Link> » Community Impact

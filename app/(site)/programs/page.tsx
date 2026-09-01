@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import SlotImage from "@/components/site/SlotImage";
 import Testimonials from "@/components/site/Testimonials";
 import CohortBookingForm from "@/components/forms/CohortBookingForm";
 import {
@@ -30,11 +29,15 @@ export default async function ProgramsPage() {
     getTestimonials("students"),
   ]);
   const offerBg = pageImages["programs_offer_bg"]?.url || null;
+  const heroBg = pageImages["programs_hero"]?.url || null;
   const upcoming = cohorts.filter((c) => c.status !== "CLOSED");
 
   return (
     <>
-      <section className="page-hero">
+      <section
+        className={`page-hero${heroBg ? " has-bg" : ""}`}
+        style={heroBg ? { backgroundImage: `url(${heroBg})` } : undefined}
+      >
         <div className="container">
           <p className="breadcrumb">
             <Link href="/">Home</Link> » Programs
@@ -49,36 +52,29 @@ export default async function ProgramsPage() {
 
       {/* Curriculum approach */}
       <section className="section">
-        <div className="container hero-grid" style={{ alignItems: "start" }}>
-          <div>
+        <div className="container">
+          <div className="section-head">
             <span className="eyebrow">Curriculum Approach</span>
             <h2>How a Willary program runs</h2>
-            <div className="steps steps--2" style={{ marginTop: 16 }}>
-              <div className="step">
-                <h3>Chess &amp; thinking</h3>
-                <p>Sessions open with chess and structured problem-solving.</p>
-              </div>
-              <div className="step">
-                <h3>Take it apart</h3>
-                <p>Reverse-engineer a working device to uncover the fundamentals.</p>
-              </div>
-              <div className="step">
-                <h3>Rebuild locally</h3>
-                <p>Rebuild with parts students can source and afford.</p>
-              </div>
-              <div className="step">
-                <h3>Ship a project</h3>
-                <p>Each block ends with a working build they can demo and explain.</p>
-              </div>
+          </div>
+          <div className="steps">
+            <div className="step">
+              <h3>Chess &amp; thinking</h3>
+              <p>Sessions open with chess and structured problem-solving.</p>
+            </div>
+            <div className="step">
+              <h3>Take it apart</h3>
+              <p>Reverse-engineer a working device to uncover the fundamentals.</p>
+            </div>
+            <div className="step">
+              <h3>Rebuild locally</h3>
+              <p>Rebuild with parts students can source and afford.</p>
+            </div>
+            <div className="step">
+              <h3>Ship a project</h3>
+              <p>Each block ends with a working build they can demo and explain.</p>
             </div>
           </div>
-          <SlotImage
-            images={pageImages}
-            slot="programs_hero"
-            label="A Willary class in session"
-            variant="tall"
-            priority
-          />
         </div>
       </section>
 

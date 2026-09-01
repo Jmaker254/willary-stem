@@ -6,7 +6,12 @@ import Testimonials from "@/components/site/Testimonials";
 import ComingSoonButton from "@/components/site/ComingSoonButton";
 import { ticketsLive } from "@/lib/flags";
 import { embedUrl, isVideoUrl } from "@/lib/media";
-import { getEvents, getSettings, getTestimonials } from "@/lib/content";
+import {
+  getEvents,
+  getSettings,
+  getTestimonials,
+  getPageImages,
+} from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Events",
@@ -15,17 +20,22 @@ export const metadata: Metadata = {
 };
 
 export default async function EventsPage() {
-  const [events, settings, csTestimonials] = await Promise.all([
+  const [events, settings, csTestimonials, pageImages] = await Promise.all([
     getEvents(),
     getSettings(),
     getTestimonials("coffee-and-solder"),
+    getPageImages(),
   ]);
   const upcoming = events.filter((e) => e.status === "UPCOMING");
   const past = events.filter((e) => e.status === "PAST");
+  const heroBg = pageImages["events_hero"]?.url || null;
 
   return (
     <>
-      <section className="page-hero">
+      <section
+        className={`page-hero${heroBg ? " has-bg" : ""}`}
+        style={heroBg ? { backgroundImage: `url(${heroBg})` } : undefined}
+      >
         <div className="container">
           <p className="breadcrumb">
             <Link href="/">Home</Link> » Events
