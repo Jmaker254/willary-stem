@@ -3,6 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import Slideshow from "@/components/site/Slideshow";
 import Testimonials from "@/components/site/Testimonials";
+import ComingSoonButton from "@/components/site/ComingSoonButton";
+import { ticketsLive } from "@/lib/flags";
 import { embedUrl, isVideoUrl } from "@/lib/media";
 import { getEvents, getSettings, getTestimonials } from "@/lib/content";
 
@@ -79,13 +81,22 @@ export default async function EventsPage() {
                         <Link className="btn btn--light" href="/build-fest">
                           Full details
                         </Link>{" "}
-                        <Link
-                          className="btn btn--ghost"
-                          href="/build-fest/register"
-                          style={{ marginLeft: 10, color: "#fff", borderColor: "rgba(255,255,255,.5)" }}
-                        >
-                          Register
-                        </Link>
+                        {ticketsLive() ? (
+                          <Link
+                            className="btn btn--ghost"
+                            href="/build-fest/register"
+                            style={{ marginLeft: 10, color: "#fff", borderColor: "rgba(255,255,255,.5)" }}
+                          >
+                            Register
+                          </Link>
+                        ) : (
+                          <ComingSoonButton
+                            className="btn btn--ghost"
+                            style={{ marginLeft: 10, color: "#fff", borderColor: "rgba(255,255,255,.5)" }}
+                          >
+                            Get Tickets
+                          </ComingSoonButton>
+                        )}
                       </>
                     ) : (
                       <Link className="btn btn--light" href="/contact">

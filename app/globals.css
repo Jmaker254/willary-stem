@@ -1072,6 +1072,26 @@ table.data tbody tr:hover td { background: var(--blue-tint); }
   border-radius: 50%;
 }
 
+/* --- "Coming soon" ticket button --- */
+.cs-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  vertical-align: top;
+}
+.cs-note {
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #fff;
+  color: var(--blue-dark);
+  border: 1px solid var(--line);
+  padding: 8px 14px;
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+  animation: count-pop 0.25s ease both;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 960px) {
   .hero-grid { grid-template-columns: 1fr; gap: 40px; }

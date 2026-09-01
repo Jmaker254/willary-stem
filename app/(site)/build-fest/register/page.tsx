@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import BuildFestRegisterForm from "@/components/forms/BuildFestRegisterForm";
 import { getSettings } from "@/lib/content";
+import { ticketsLive } from "@/lib/flags";
 
 export const metadata: Metadata = {
   title: "Register — Willary BuildFest 2026",
@@ -11,6 +12,42 @@ export const metadata: Metadata = {
 
 export default async function RegisterPage() {
   const s = await getSettings();
+
+  if (!ticketsLive()) {
+    return (
+      <section className="page-hero" style={{ minHeight: "60vh" }}>
+        <div className="container">
+          <p className="breadcrumb">
+            <Link href="/">Home</Link> »{" "}
+            <Link href="/build-fest">Willary BuildFest 2026</Link> » Tickets
+          </p>
+          <h1>Ticket sales open soon</h1>
+          <p style={{ maxWidth: "52ch" }}>
+            Registration and M-Pesa checkout for Willary BuildFest 2026
+            ({s.buildFestDate}, {s.buildFestVenue}) go live shortly. Check back
+            soon — or follow{" "}
+            <a href="https://www.instagram.com/willarystemrobotics1">
+              @willarystemrobotics1
+            </a>{" "}
+            for the announcement.
+          </p>
+          <p style={{ marginTop: 24 }}>
+            <Link className="btn btn--light" href="/build-fest">
+              Back to BuildFest 2026
+            </Link>{" "}
+            <Link
+              className="btn btn--ghost"
+              href="/contact"
+              style={{ marginLeft: 10, color: "#fff", borderColor: "rgba(255,255,255,.5)" }}
+            >
+              Ask a question
+            </Link>
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <>
       <section className="page-hero">

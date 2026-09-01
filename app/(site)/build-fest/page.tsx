@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SlotImage from "@/components/site/SlotImage";
 import PhotoWall from "@/components/site/PhotoWall";
+import ComingSoonButton from "@/components/site/ComingSoonButton";
+import { ticketsLive } from "@/lib/flags";
 import {
   getSettings,
   getSponsorTiers,
@@ -83,6 +85,7 @@ export default async function BuildFestPage() {
   ]);
   const bf = events.find((e) => e.slug === "build-fest-2026");
   const poster = bf?.posterUrl || null;
+  const canBuy = ticketsLive();
   const exhibitorBg = pageImages["buildfest_exhibitor_bg"]?.url || null;
   const galleryMedia = bf?.photos ?? [];
   const galleryAlbum = bf?.albumUrl ?? s.photosAlbumUrl;
@@ -149,9 +152,15 @@ export default async function BuildFestPage() {
               innovation event.
             </p>
             <div className="hero-cta">
-              <Link className="btn btn--primary" href="/build-fest/register">
-                Register Your Team
-              </Link>
+              {canBuy ? (
+                <Link className="btn btn--primary" href="/build-fest/register">
+                  Register Your Team
+                </Link>
+              ) : (
+                <ComingSoonButton className="btn btn--primary">
+                  Get Tickets
+                </ComingSoonButton>
+              )}
               <Link className="btn btn--ghost" href="#tracks">
                 See the 8 Tracks
               </Link>
@@ -397,9 +406,15 @@ export default async function BuildFestPage() {
             </table>
           </div>
           <p style={{ textAlign: "center", marginTop: 28 }}>
-            <Link className="btn btn--primary" href="/build-fest/register">
-              Register — KES {s.buildFestTicketKes} per attendee
-            </Link>
+            {canBuy ? (
+              <Link className="btn btn--primary" href="/build-fest/register">
+                Register — KES {s.buildFestTicketKes} per attendee
+              </Link>
+            ) : (
+              <ComingSoonButton className="btn btn--primary">
+                Get Tickets — KES {s.buildFestTicketKes} per attendee
+              </ComingSoonButton>
+            )}
           </p>
         </div>
       </section>
@@ -503,9 +518,15 @@ export default async function BuildFestPage() {
             Build something that matters.
           </p>
           <p style={{ marginTop: 20 }}>
-            <Link className="btn btn--primary" href="/build-fest/register">
-              Register Now
-            </Link>{" "}
+            {canBuy ? (
+              <Link className="btn btn--primary" href="/build-fest/register">
+                Register Now
+              </Link>
+            ) : (
+              <ComingSoonButton className="btn btn--primary">
+                Get Tickets
+              </ComingSoonButton>
+            )}{" "}
             <Link className="btn btn--ghost" href="/contact" style={{ marginLeft: 10 }}>
               Ask a question
             </Link>

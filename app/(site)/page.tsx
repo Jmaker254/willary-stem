@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SlotImage from "@/components/site/SlotImage";
 import PartnerWall from "@/components/site/PartnerWall";
+import ComingSoonButton from "@/components/site/ComingSoonButton";
+import { ticketsLive } from "@/lib/flags";
 import {
   getSettings,
   getSiteStats,
@@ -111,13 +113,22 @@ export default async function HomePage() {
               <Link className="btn btn--light" href="/build-fest">
                 Explore BuildFest 2026
               </Link>{" "}
-              <Link
-                className="btn btn--ghost"
-                href="/build-fest/register"
-                style={{ marginLeft: 10, color: "#fff", borderColor: "rgba(255,255,255,.5)" }}
-              >
-                Register
-              </Link>
+              {ticketsLive() ? (
+                <Link
+                  className="btn btn--ghost"
+                  href="/build-fest/register"
+                  style={{ marginLeft: 10, color: "#fff", borderColor: "rgba(255,255,255,.5)" }}
+                >
+                  Register
+                </Link>
+              ) : (
+                <ComingSoonButton
+                  className="btn btn--ghost"
+                  style={{ marginLeft: 10, color: "#fff", borderColor: "rgba(255,255,255,.5)" }}
+                >
+                  Get Tickets
+                </ComingSoonButton>
+              )}
             </p>
           </div>
         </div>
