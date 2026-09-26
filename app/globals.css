@@ -1353,6 +1353,7 @@ table.data tbody tr:hover td { background: var(--blue-tint); }
   border-radius: var(--radius-sm); padding: 16px; margin-top: 12px;
 }
 .pay-box .pay-ref { margin: 10px 0 0; font-size: 0.9rem; }
+.pay-box .pay-paybill { margin: 0 0 10px; font-size: 1.1rem; }
 
 .booking-status { border-left: 4px solid var(--line); }
 .booking-status.is-ok { border-left-color: var(--ok); }

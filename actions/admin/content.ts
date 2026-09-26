@@ -387,6 +387,7 @@ export async function saveCohort(
     capacity: d.capacity ?? null,
     summary: d.summary,
     status: d.status,
+    whatsappGroupUrl: d.whatsappGroupUrl ?? null,
     published: d.published,
     order: d.order,
   };

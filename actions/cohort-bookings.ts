@@ -155,6 +155,7 @@ export async function bookCohort(
         `Thanks for applying for "${cohort.title}" (reference ${ref}).\n\n` +
         `Price: KES ${cohort.priceAmountKes}. You can pay now by M-Pesa, or reserve ` +
         `your spot and pay any time before the class starts.\n\n` +
+        `Pay Bill: ${settings.classPaybillNumber}\n` +
         `${settings.classPayInfo}\n\n` +
         `Once you've paid, submit your M-Pesa code here: ${SITE_URL}/booking/${publicRef}\n\n` +
         `— ${settings.siteName}`,
@@ -164,6 +165,7 @@ export async function bookCohort(
       publicRef,
       ref,
       amountKes: cohort.priceAmountKes,
+      paybill: settings.classPaybillNumber,
       payInfo: settings.classPayInfo,
       cohortTitle: cohort.title,
     };
@@ -208,25 +210,59 @@ export async function submitClassPayment(
       };
     }
 
+    const code = d.mpesaCode.toUpperCase();
+
+    // An M-Pesa code is only ever issued once — a repeat means it was reused
+    // (deliberately or by mistake) from another payment.
+    const reused = await prisma.cohortBooking.findFirst({
+      where: { mpesaCode: code, id: { not: booking.id } },
+      select: { id: true },
+    });
+    if (reused)
+      return err(
+        "That M-Pesa code has already been used for another booking. Please check your M-Pesa message and try again.",
+        { mpesaCode: "Already used on another booking" },
+      );
+
+    // The time on the M-Pesa message should sit between the application and now
+    // — catches a stale/reused message pasted long after applying.
+    const now = new Date();
+    const BUFFER_MS = 5 * 60_000;
+    if (d.paidAt.getTime() < booking.createdAt.getTime() - BUFFER_MS)
+      return err(
+        "The time on your M-Pesa message is before you applied — please check it and try again.",
+        { paidAt: "Before your application time" },
+      );
+    if (d.paidAt.getTime() > now.getTime() + BUFFER_MS)
+      return err(
+        "The time on your M-Pesa message is in the future — please check it and try again.",
+        { paidAt: "In the future" },
+      );
+
     await prisma.cohortBooking.update({
       where: { id: booking.id },
       data: {
         status: "PENDING_CONFIRMATION",
-        mpesaCode: d.mpesaCode.toUpperCase(),
+        mpesaCode: code,
         amountClaimedKes: d.amount,
-        paymentClaimedAt: new Date(),
+        paidAt: d.paidAt,
+        paymentClaimedAt: now,
       },
     });
 
     const ref = shortRef(booking.id);
     const expected = booking.cohort.priceAmountKes;
+    const appliedToPaidMin = Math.round(
+      (d.paidAt.getTime() - booking.createdAt.getTime()) / 60_000,
+    );
     await sendNotification(
       `Class payment claimed — ${booking.cohort.title} — ${booking.name}`,
       `${booking.name} <${booking.email}> · ${booking.phone ?? ""}\n` +
         `Class: ${booking.cohort.title}\n` +
         `Reference: ${ref}\n` +
-        `M-Pesa code: ${d.mpesaCode.toUpperCase()}\n` +
+        `M-Pesa code: ${code}\n` +
         `Amount claimed: KES ${d.amount}${expected && d.amount !== expected ? ` (expected KES ${expected})` : ""}\n` +
+        `Applied → paid on M-Pesa: ${appliedToPaidMin} min apart\n` +
         `\nConfirm in admin: /admin/cohort-bookings/${booking.id}`,
     );
 

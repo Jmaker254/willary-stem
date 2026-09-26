@@ -111,8 +111,9 @@ export async function confirmClassPayment(id: string): Promise<void> {
       `  ${row.cohort.scheduleText}\n` +
       `${row.cohort.location ? `  ${row.cohort.location}\n` : ""}` +
       `\nBooking reference: ${ref}\n` +
-      `Status page: ${SITE_URL}/booking/${row.publicRef ?? ""}\n\n` +
-      `We'll send joining details before the start date.\n\n— Willary STEM`,
+      `Status page: ${SITE_URL}/booking/${row.publicRef ?? ""}\n` +
+      `${row.cohort.whatsappGroupUrl ? `\nJoin the class WhatsApp group: ${row.cohort.whatsappGroupUrl}\n` : ""}` +
+      `\nWe'll send joining details before the start date.\n\n— Willary STEM`,
   );
 
   revalidateBooking(id, row.publicRef);

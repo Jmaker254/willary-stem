@@ -354,24 +354,25 @@ enum CohortStatus {
 }
 
 model Cohort {
-  id           String          @id @default(cuid())
-  title        String
-  program      String
-  mode         ClassMode       @default(PHYSICAL)
-  startText    String
-  scheduleText String
-  location     String?
-  ageRange     String?
-  priceKes     String?
-  priceAmountKes Int           @default(0)
-  capacity     Int?
-  summary      String
-  status       CohortStatus    @default(OPEN)
-  published    Boolean         @default(true)
-  order        Int             @default(0)
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
-  bookings     CohortBooking[]
+  id               String          @id @default(cuid())
+  title            String
+  program          String
+  mode             ClassMode       @default(PHYSICAL)
+  startText        String
+  scheduleText     String
+  location         String?
+  ageRange         String?
+  priceKes         String?
+  priceAmountKes   Int             @default(0)
+  capacity         Int?
+  summary          String
+  status           CohortStatus    @default(OPEN)
+  whatsappGroupUrl String?
+  published        Boolean         @default(true)
+  order            Int             @default(0)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  bookings         CohortBooking[]
 
   @@index([published, status, order])
 }
@@ -400,6 +401,7 @@ model CohortBooking {
   publicRef        String?       @unique
   mpesaCode        String?
   amountClaimedKes Int?
+  paidAt           DateTime?
   paymentClaimedAt DateTime?
   confirmedAt      DateTime?
   createdAt        DateTime      @default(now())

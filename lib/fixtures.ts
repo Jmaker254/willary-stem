@@ -37,8 +37,9 @@ export const SETTINGS: SiteSettings = {
   buildFestTime: "8:00 AM – 5:30 PM",
   buildFestVenue: "Nairobi, Kenya — university venue to be confirmed",
   buildFestTicketKes: "500",
+  classPaybillNumber: "000000",
   classPayInfo:
-    "Lipa na M-Pesa → Pay Bill → Business no. 000000 → Account: the reference shown below → enter the exact amount shown. Once M-Pesa sends you the confirmation SMS, paste the confirmation code below.",
+    "Lipa na M-Pesa → Pay Bill → use the Business number above → Account: the reference shown below → enter the exact amount shown. Once M-Pesa sends you the confirmation SMS, paste the confirmation code and the time shown on that message below.",
   logoUrl: "",
   photosAlbumUrl: "",
   social: {

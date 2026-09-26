@@ -186,6 +186,7 @@ export const cohortSchema = z.object({
   capacity: z.coerce.number().int().min(0).max(100000).optional(),
   summary: str(1200),
   status: z.enum(["OPEN", "UPCOMING", "FULL", "CLOSED"]).default("OPEN"),
+  whatsappGroupUrl: optStr(600),
   published: z.coerce.boolean().default(true),
   order: z.coerce.number().int().min(0).max(9999).default(0),
 });
@@ -214,6 +215,7 @@ export const classPaymentSchema = z.object({
       "Enter the M-Pesa confirmation code from your SMS (e.g. TIA7X2K9LM)",
     ),
   amount: z.coerce.number().int().min(1).max(10_000_000),
+  paidAt: z.coerce.date(),
 });
 
 const slug = (max = 100) =>

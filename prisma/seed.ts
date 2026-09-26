@@ -46,6 +46,7 @@ async function main() {
     ["buildFestTime", SETTINGS.buildFestTime],
     ["buildFestVenue", SETTINGS.buildFestVenue],
     ["buildFestTicketKes", SETTINGS.buildFestTicketKes],
+    ["classPaybillNumber", SETTINGS.classPaybillNumber],
     ["classPayInfo", SETTINGS.classPayInfo],
     ["logoUrl", SETTINGS.logoUrl],
     ["photosAlbumUrl", SETTINGS.photosAlbumUrl],
@@ -190,6 +191,7 @@ async function main() {
           capacity: c.capacity ?? null,
           summary: c.summary,
           status: c.status,
+          whatsappGroupUrl: c.whatsappGroupUrl ?? null,
           order: c.order,
         },
       });

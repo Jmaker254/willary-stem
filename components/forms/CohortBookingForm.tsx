@@ -28,6 +28,7 @@ function PayOrWaitStep({
   publicRef,
   reference,
   amountKes,
+  paybill,
   payInfo,
   cohortTitle,
   sitePhone,
@@ -35,6 +36,7 @@ function PayOrWaitStep({
   publicRef: string;
   reference: string;
   amountKes: number;
+  paybill: string;
   payInfo: string;
   cohortTitle: string;
   sitePhone?: string;
@@ -47,8 +49,10 @@ function PayOrWaitStep({
         publicRef={publicRef}
         reference={reference}
         amountKes={amountKes}
+        paybill={paybill}
         payInfo={payInfo}
         cohortTitle={cohortTitle}
+        sitePhone={sitePhone}
       />
     );
   }
@@ -63,8 +67,9 @@ function PayOrWaitStep({
           starts to confirm it.
         </p>
         <p className="form-note">
-          Amount: {formatKes(amountKes)}. We&rsquo;ll follow up by email as a
-          reminder — you can also come back and pay whenever you&rsquo;re ready.
+          Amount: {formatKes(amountKes)} to Pay Bill {paybill}. We&rsquo;ll
+          follow up by email as a reminder — you can also come back and pay
+          whenever you&rsquo;re ready.
         </p>
         <div className="inline-actions" style={{ marginTop: 12 }}>
           <button
@@ -134,6 +139,7 @@ export default function CohortBookingForm({
         publicRef={state.publicRef}
         reference={state.ref}
         amountKes={state.amountKes}
+        paybill={state.paybill}
         payInfo={state.payInfo}
         cohortTitle={state.cohortTitle}
         sitePhone={sitePhone}

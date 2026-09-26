@@ -14,6 +14,7 @@ export type BookingFlowState =
       publicRef: string;
       ref: string;
       amountKes: number;
+      paybill: string;
       payInfo: string;
       cohortTitle: string;
     }

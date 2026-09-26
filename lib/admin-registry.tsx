@@ -374,6 +374,7 @@ export const REGISTRY: Record<ContentKey, Entry> = {
       { name: "priceAmountKes", label: "Price to charge (KES, 0 = free)", type: "number", hint: "Numeric amount collected via M-Pesa. 0 skips the payment step." },
       { name: "capacity", label: "Capacity (optional)", type: "number" },
       { name: "summary", label: "Summary", type: "textarea", rows: 3 },
+      { name: "whatsappGroupUrl", label: "WhatsApp group invite link (optional)", type: "url", hint: "Shown to students once their payment is confirmed, e.g. https://chat.whatsapp.com/XXXXXXXXXX" },
       { name: "published", label: "Published", type: "checkbox" },
       { name: "order", label: "Order", type: "number" },
     ],

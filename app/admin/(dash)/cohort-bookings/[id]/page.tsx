@@ -39,6 +39,10 @@ export default async function CohortBookingDetail({
     b.amountClaimedKes != null &&
     expected > 0 &&
     b.amountClaimedKes !== expected;
+  const gapMin = b.paidAt
+    ? Math.round((b.paidAt.getTime() - b.createdAt.getTime()) / 60_000)
+    : null;
+  const gapSuspicious = gapMin != null && (gapMin < 0 || gapMin > 60 * 24 * 7);
   const statusUrl = `${SITE_URL}/booking/${b.publicRef ?? ""}`;
   const confirmedWaText =
     `Hi ${b.name}, your place in "${b.cohort.title}" is confirmed. ` +
@@ -103,6 +107,13 @@ export default async function CohortBookingDetail({
                 <div style={{ fontSize: "0.8rem", color: "var(--body)" }}>
                   {b.cohort.startText} · {b.cohort.scheduleText}
                 </div>
+                {b.cohort.whatsappGroupUrl && (
+                  <div style={{ fontSize: "0.8rem" }}>
+                    <a href={b.cohort.whatsappGroupUrl} target="_blank" rel="noreferrer">
+                      Class WhatsApp group ↗
+                    </a>
+                  </div>
+                )}
               </td>
             </tr>
             {b.notes && (
@@ -148,6 +159,16 @@ export default async function CohortBookingDetail({
               <td style={mismatch ? { color: "var(--danger)", fontWeight: 700 } : undefined}>
                 {b.amountClaimedKes != null ? `KES ${b.amountClaimedKes}` : "—"}
                 {mismatch ? ` — does not match expected KES ${expected}` : ""}
+              </td>
+            </tr>
+            <tr>
+              <th>Time on M-Pesa message</th>
+              <td style={gapSuspicious ? { color: "var(--danger)", fontWeight: 700 } : undefined}>
+                {b.paidAt
+                  ? b.paidAt.toISOString().replace("T", " ").slice(0, 19)
+                  : "—"}
+                {gapMin != null &&
+                  ` — ${gapMin} min after applying${gapSuspicious ? " (check this)" : ""}`}
               </td>
             </tr>
             <tr>

@@ -59,6 +59,18 @@ export default async function BookingStatusPage({
                 <li>{c.scheduleText}</li>
                 {c.location && <li>{c.location}</li>}
               </ul>
+              {c.whatsappGroupUrl && (
+                <p style={{ marginTop: 14 }}>
+                  <a
+                    className="btn btn--primary"
+                    href={c.whatsappGroupUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Join the class WhatsApp group
+                  </a>
+                </p>
+              )}
               <p className="form-note">
                 We&rsquo;ll be in touch with joining details before the start
                 date. Questions? <Link href="/contact">Contact us</Link>.
@@ -96,6 +108,9 @@ export default async function BookingStatusPage({
                 M-Pesa code.
               </p>
               <div className="pay-box">
+                <p className="pay-paybill">
+                  Pay Bill: <strong>{settings.classPaybillNumber}</strong>
+                </p>
                 <p style={{ whiteSpace: "pre-wrap", margin: 0 }}>
                   {settings.classPayInfo}
                 </p>

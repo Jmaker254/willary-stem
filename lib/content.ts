@@ -39,6 +39,7 @@ export const SETTING_KEYS = [
   "buildFestTime",
   "buildFestVenue",
   "buildFestTicketKes",
+  "classPaybillNumber",
   "classPayInfo",
   "logoUrl",
   "photosAlbumUrl",
@@ -74,6 +75,7 @@ export async function getSettings(): Promise<SiteSettings> {
       buildFestTime: get("buildFestTime", base.buildFestTime),
       buildFestVenue: get("buildFestVenue", base.buildFestVenue),
       buildFestTicketKes: get("buildFestTicketKes", base.buildFestTicketKes),
+      classPaybillNumber: get("classPaybillNumber", base.classPaybillNumber),
       classPayInfo: get("classPayInfo", base.classPayInfo),
       logoUrl: get("logoUrl", base.logoUrl),
       photosAlbumUrl: get("photosAlbumUrl", base.photosAlbumUrl),
@@ -355,6 +357,7 @@ export async function getCohorts(): Promise<Cohort[]> {
         capacity: r.capacity,
         summary: r.summary,
         status: r.status,
+        whatsappGroupUrl: r.whatsappGroupUrl,
         order: r.order,
       }));
   } catch {}
@@ -374,6 +377,7 @@ export interface BookingByRef {
   learnerName: string | null;
   amountClaimedKes: number | null;
   mpesaCode: string | null;
+  paidAt: string | null;
   paymentClaimedAt: string | null;
   confirmedAt: string | null;
   createdAt: string;
@@ -386,6 +390,7 @@ export interface BookingByRef {
     location: string | null;
     priceKes: string | null;
     priceAmountKes: number;
+    whatsappGroupUrl: string | null;
   };
 }
 
@@ -408,6 +413,7 @@ export async function getBookingByRef(
       learnerName: b.learnerName,
       amountClaimedKes: b.amountClaimedKes,
       mpesaCode: b.mpesaCode,
+      paidAt: b.paidAt ? b.paidAt.toISOString() : null,
       paymentClaimedAt: b.paymentClaimedAt
         ? b.paymentClaimedAt.toISOString()
         : null,
@@ -422,6 +428,7 @@ export async function getBookingByRef(
         location: b.cohort.location,
         priceKes: b.cohort.priceKes,
         priceAmountKes: b.cohort.priceAmountKes,
+        whatsappGroupUrl: b.cohort.whatsappGroupUrl,
       },
     };
   } catch {

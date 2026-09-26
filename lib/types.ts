@@ -122,6 +122,7 @@ export interface Cohort {
   capacity?: number | null;
   summary: string;
   status: "OPEN" | "UPCOMING" | "FULL" | "CLOSED";
+  whatsappGroupUrl?: string | null;
   order: number;
 }
 
@@ -171,6 +172,7 @@ export interface SiteSettings {
   buildFestVenue: string;
   buildFestTicketKes: string;
   classPayInfo: string;
+  classPaybillNumber: string;
   logoUrl: string;
   photosAlbumUrl: string;
   social: {

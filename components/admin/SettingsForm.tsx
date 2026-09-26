@@ -54,9 +54,10 @@ const GROUPS: { title: string; fields: [string, string, string?][] }[] = [
   {
     title: "Class bookings",
     fields: [
+      ["classPaybillNumber", "M-Pesa Pay Bill number (shown prominently on the payment step)"],
       [
         "classPayInfo",
-        "M-Pesa payment instructions (shown on the class payment step)",
+        "Extra payment instructions (shown under the Pay Bill number)",
         "textarea",
       ],
     ],
