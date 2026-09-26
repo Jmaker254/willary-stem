@@ -1277,3 +1277,85 @@ table.data tbody tr:hover td { background: var(--blue-tint); }
   .cta-band { padding: 32px 20px; }
   .testimonial, .tier { padding: 20px; }
 }
+
+/* ---------------------------------------------------------------------------
+   Shop
+   --------------------------------------------------------------------------- */
+.nav-cart { position: relative; overflow: visible; }
+.nav-cart .nav-badge {
+  position: absolute; top: -8px; right: -8px;
+  background: var(--blue); color: #fff; font-size: 0.68rem; font-weight: 700;
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+.shop-cat-card { display: flex; flex-direction: column; }
+.shop-cat-card .media { margin-bottom: 4px; }
+.shop-cat-card .card-link { margin-top: auto; }
+
+.product-card { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+.product-card-media { display: block; }
+.product-card-media .media { border-radius: 0; }
+.product-card-body { padding: 20px; display: flex; flex-direction: column; flex: 1; }
+.product-card-body h3 { font-size: 1.1rem; margin-bottom: 6px; }
+.product-card-body h3 a { color: var(--ink); }
+.product-card-body h3 a:hover { color: var(--blue); text-decoration: none; }
+.product-card-body p { font-size: 0.92rem; }
+.product-card-body .card-link { margin-top: auto; }
+
+.product-price { font-weight: 800; color: var(--ink); margin: 10px 0 0; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.product-price--lg { font-size: 1.6rem; }
+.product-was { font-weight: 600; font-size: 0.85em; color: var(--body); text-decoration: line-through; }
+.product-flag {
+  font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--danger); background: #fdecec; border-radius: 999px; padding: 3px 10px;
+}
+
+.product-detail { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: start; }
+.product-detail-buy .chips { margin-top: 0; margin-bottom: 12px; }
+
+.shop-add { display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.shop-qty { display: inline-flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; }
+.shop-qty span { min-width: 18px; text-align: center; font-weight: 700; }
+.shop-qty .btn-link { font-size: 1.1rem; line-height: 1; }
+
+.cart { display: grid; grid-template-columns: 1fr 320px; gap: 28px; align-items: start; }
+.cart-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.cart-line { display: grid; grid-template-columns: 80px 1fr auto; gap: 16px; align-items: center; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; }
+.cart-line-media { position: relative; display: block; width: 80px; height: 80px; border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-alt); display: grid; place-items: center; font-size: 1.6rem; }
+.cart-line-name { font-weight: 700; color: var(--ink); }
+.cart-line-name:hover { color: var(--blue); text-decoration: none; }
+.cart-line-total { font-weight: 700; white-space: nowrap; }
+.cart-remove { color: var(--danger); }
+.cart-subtotal { display: flex; justify-content: space-between; align-items: baseline; font-size: 1.05rem; margin-bottom: 8px; }
+.cart-subtotal strong { font-size: 1.25rem; }
+
+.checkout-grid { display: grid; grid-template-columns: 1fr 320px; gap: 28px; align-items: start; }
+.checkout-summary { position: sticky; top: 90px; }
+.checkout-items { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 8px; font-size: 0.9rem; }
+.checkout-items li { display: flex; justify-content: space-between; gap: 12px; }
+
+@media (max-width: 960px) {
+  .product-detail { grid-template-columns: 1fr; gap: 24px; }
+  .cart, .checkout-grid { grid-template-columns: 1fr; }
+  .checkout-summary { position: static; }
+}
+@media (max-width: 520px) {
+  .cart-line { grid-template-columns: 64px 1fr; }
+  .cart-line-total { grid-column: 2; text-align: right; }
+}
+
+/* ---------------------------------------------------------------------------
+   Class booking — payment step & status page
+   --------------------------------------------------------------------------- */
+.pay-box {
+  background: var(--blue-tint); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); padding: 16px; margin-top: 12px;
+}
+.pay-box .pay-ref { margin: 10px 0 0; font-size: 0.9rem; }
+
+.booking-status { border-left: 4px solid var(--line); }
+.booking-status.is-ok { border-left-color: var(--ok); }
+.booking-status.is-pending { border-left-color: var(--warn); }
+.booking-status.is-error { border-left-color: var(--danger); }
+.booking-status h2 { font-size: 1.25rem; }

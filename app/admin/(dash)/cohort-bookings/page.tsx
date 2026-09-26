@@ -55,7 +55,7 @@ export default async function CohortBookingsPage({
                 <th>Name</th>
                 <th>Contact</th>
                 <th>Class</th>
-                <th>Learner</th>
+                <th>Payment</th>
                 <th>Status</th>
                 <th>Move to</th>
               </tr>
@@ -66,7 +66,12 @@ export default async function CohortBookingsPage({
                   <td>
                     {r.createdAt.toISOString().slice(0, 16).replace("T", " ")}
                   </td>
-                  <td>{r.name}</td>
+                  <td>
+                    <Link href={`/admin/cohort-bookings/${r.id}`}>{r.name}</Link>
+                    <div style={{ fontSize: "0.72rem", color: "var(--body)" }}>
+                      CLS-{r.id.slice(-6).toUpperCase()}
+                    </div>
+                  </td>
                   <td>
                     {r.email}
                     {r.phone && (
@@ -79,11 +84,28 @@ export default async function CohortBookingsPage({
                     {r.cohort.title}
                     <div style={{ fontSize: "0.72rem", color: "var(--body)" }}>
                       {r.cohort.mode}
+                      {r.learnerName ? ` · ${r.learnerName}` : ""}
                     </div>
                   </td>
                   <td>
-                    {r.learnerName ?? "—"}
-                    {r.learnerAge ? `, ${r.learnerAge}` : ""}
+                    {r.mpesaCode ? (
+                      <>
+                        {r.mpesaCode}
+                        <div style={{ fontSize: "0.72rem", color: "var(--body)" }}>
+                          KES {r.amountClaimedKes ?? "?"}
+                          {r.cohort.priceAmountKes &&
+                          r.amountClaimedKes !== r.cohort.priceAmountKes
+                            ? ` (exp ${r.cohort.priceAmountKes})`
+                            : ""}
+                        </div>
+                      </>
+                    ) : r.cohort.priceAmountKes ? (
+                      <span style={{ color: "var(--body)" }}>
+                        KES {r.cohort.priceAmountKes}
+                      </span>
+                    ) : (
+                      "—"
+                    )}
                   </td>
                   <td>
                     <Badge value={r.status} />

@@ -13,6 +13,8 @@ import type {
   PageImageMap,
   Post,
   Cohort,
+  ProductCategory,
+  Product,
 } from "./types";
 import * as fx from "./fixtures";
 
@@ -37,6 +39,7 @@ export const SETTING_KEYS = [
   "buildFestTime",
   "buildFestVenue",
   "buildFestTicketKes",
+  "classPayInfo",
   "logoUrl",
   "photosAlbumUrl",
   "social.tiktok",
@@ -71,6 +74,7 @@ export async function getSettings(): Promise<SiteSettings> {
       buildFestTime: get("buildFestTime", base.buildFestTime),
       buildFestVenue: get("buildFestVenue", base.buildFestVenue),
       buildFestTicketKes: get("buildFestTicketKes", base.buildFestTicketKes),
+      classPayInfo: get("classPayInfo", base.classPayInfo),
       logoUrl: get("logoUrl", base.logoUrl),
       photosAlbumUrl: get("photosAlbumUrl", base.photosAlbumUrl),
       social: {
@@ -347,6 +351,7 @@ export async function getCohorts(): Promise<Cohort[]> {
         location: r.location,
         ageRange: r.ageRange,
         priceKes: r.priceKes,
+        priceAmountKes: r.priceAmountKes,
         capacity: r.capacity,
         summary: r.summary,
         status: r.status,
@@ -358,4 +363,199 @@ export async function getCohorts(): Promise<Cohort[]> {
 
 export async function getCohort(id: string): Promise<Cohort | null> {
   return (await getCohorts()).find((c) => c.id === id) ?? null;
+}
+
+export interface BookingByRef {
+  id: string;
+  status: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  learnerName: string | null;
+  amountClaimedKes: number | null;
+  mpesaCode: string | null;
+  paymentClaimedAt: string | null;
+  confirmedAt: string | null;
+  createdAt: string;
+  ref: string;
+  cohort: {
+    title: string;
+    mode: string;
+    startText: string;
+    scheduleText: string;
+    location: string | null;
+    priceKes: string | null;
+    priceAmountKes: number;
+  };
+}
+
+/** Look up a class booking by its opaque public reference (status page). */
+export async function getBookingByRef(
+  publicRef: string,
+): Promise<BookingByRef | null> {
+  try {
+    const b = await prisma.cohortBooking.findUnique({
+      where: { publicRef },
+      include: { cohort: true },
+    });
+    if (!b) return null;
+    return {
+      id: b.id,
+      status: b.status,
+      name: b.name,
+      email: b.email,
+      phone: b.phone,
+      learnerName: b.learnerName,
+      amountClaimedKes: b.amountClaimedKes,
+      mpesaCode: b.mpesaCode,
+      paymentClaimedAt: b.paymentClaimedAt
+        ? b.paymentClaimedAt.toISOString()
+        : null,
+      confirmedAt: b.confirmedAt ? b.confirmedAt.toISOString() : null,
+      createdAt: b.createdAt.toISOString(),
+      ref: `CLS-${b.id.slice(-6).toUpperCase()}`,
+      cohort: {
+        title: b.cohort.title,
+        mode: b.cohort.mode,
+        startText: b.cohort.startText,
+        scheduleText: b.cohort.scheduleText,
+        location: b.cohort.location,
+        priceKes: b.cohort.priceKes,
+        priceAmountKes: b.cohort.priceAmountKes,
+      },
+    };
+  } catch {
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Shop
+// ---------------------------------------------------------------------------
+
+export async function getProductCategories(): Promise<ProductCategory[]> {
+  try {
+    const rows = await prisma.productCategory.findMany({
+      where: { published: true },
+      orderBy: [{ order: "asc" }, { name: "asc" }],
+    });
+    if (rows.length > 0)
+      return rows.map((r) => ({
+        id: r.id,
+        slug: r.slug,
+        name: r.name,
+        summary: r.summary,
+        imageUrl: r.imageUrl,
+        order: r.order,
+      }));
+  } catch {}
+  return [...fx.PRODUCT_CATEGORIES].sort((a, b) => a.order - b.order);
+}
+
+export async function getProductCategory(
+  slug: string,
+): Promise<ProductCategory | null> {
+  return (await getProductCategories()).find((c) => c.slug === slug) ?? null;
+}
+
+type ProductRow = {
+  id: string;
+  slug: string;
+  name: string;
+  summary: string;
+  body: string | null;
+  priceKes: number;
+  compareKes: number | null;
+  sku: string | null;
+  stockQty: number | null;
+  status: "AVAILABLE" | "SOLD_OUT" | "COMING_SOON";
+  imageUrl: string | null;
+  images: string[];
+  featured: boolean;
+  order: number;
+  category?: { slug: string; name: string } | null;
+};
+
+function mapProduct(r: ProductRow): Product {
+  return {
+    id: r.id,
+    slug: r.slug,
+    name: r.name,
+    summary: r.summary,
+    body: r.body,
+    priceKes: r.priceKes,
+    compareKes: r.compareKes,
+    sku: r.sku,
+    stockQty: r.stockQty,
+    status: r.status,
+    imageUrl: r.imageUrl,
+    images: r.images ?? [],
+    featured: r.featured,
+    categorySlug: r.category?.slug ?? null,
+    categoryName: r.category?.name ?? null,
+    order: r.order,
+  };
+}
+
+export async function getProducts(categorySlug?: string): Promise<Product[]> {
+  try {
+    const rows = await prisma.product.findMany({
+      where: {
+        published: true,
+        ...(categorySlug ? { category: { slug: categorySlug } } : {}),
+      },
+      orderBy: [{ order: "asc" }, { name: "asc" }],
+      include: { category: { select: { slug: true, name: true } } },
+    });
+    if (rows.length > 0) return rows.map(mapProduct);
+  } catch {}
+  return [...fx.PRODUCTS]
+    .filter((p) => !categorySlug || p.categorySlug === categorySlug)
+    .sort((a, b) => a.order - b.order);
+}
+
+export async function getFeaturedProducts(limit = 6): Promise<Product[]> {
+  try {
+    const rows = await prisma.product.findMany({
+      where: { published: true, featured: true },
+      orderBy: [{ order: "asc" }, { name: "asc" }],
+      include: { category: { select: { slug: true, name: true } } },
+      take: limit,
+    });
+    if (rows.length > 0) return rows.map(mapProduct);
+  } catch {}
+  return [...fx.PRODUCTS].filter((p) => p.featured).slice(0, limit);
+}
+
+export async function getProduct(slug: string): Promise<Product | null> {
+  try {
+    const row = await prisma.product.findFirst({
+      where: { slug, published: true },
+      include: { category: { select: { slug: true, name: true } } },
+    });
+    if (row) return mapProduct(row);
+  } catch {}
+  return fx.PRODUCTS.find((p) => p.slug === slug) ?? null;
+}
+
+export async function getProductSlugs(): Promise<string[]> {
+  try {
+    const rows = await prisma.product.findMany({
+      where: { published: true },
+      select: { slug: true },
+    });
+    if (rows.length > 0) return rows.map((r) => r.slug);
+  } catch {}
+  return fx.PRODUCTS.map((p) => p.slug);
+}
+
+export async function getProductCategorySlugs(): Promise<string[]> {
+  try {
+    const rows = await prisma.productCategory.findMany({
+      where: { published: true },
+      select: { slug: true },
+    });
+    if (rows.length > 0) return rows.map((r) => r.slug);
+  } catch {}
+  return fx.PRODUCT_CATEGORIES.map((c) => c.slug);
 }

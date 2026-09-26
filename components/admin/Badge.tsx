@@ -9,6 +9,12 @@ const MAP: Record<string, string> = {
   WAITLIST: "is-pending",
   CANCELLED: "is-cancelled",
   UNSUBSCRIBED: "is-archived",
+  REQUESTED: "is-new",
+  PAID: "is-ok",
+  FULFILLED: "is-ok",
+  AWAITING_PAYMENT: "is-pending",
+  PENDING_CONFIRMATION: "is-pending",
+  REJECTED: "is-cancelled",
 };
 
 export default function Badge({ value }: { value: string }) {

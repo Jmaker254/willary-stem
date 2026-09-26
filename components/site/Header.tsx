@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import CartButton from "@/components/shop/CartButton";
 
 const NAV = [
   { href: "/", label: "Home" },
@@ -12,6 +13,7 @@ const NAV = [
   { href: "/impact", label: "Impact" },
   { href: "/events", label: "Events" },
   { href: "/blog", label: "Blog" },
+  { href: "/shop", label: "Shop" },
   { href: "/partner", label: "Partner" },
   { href: "/contact", label: "Contact" },
 ];
@@ -61,6 +63,7 @@ export default function Header({
           </ul>
         </nav>
         <div className="nav-actions">
+          <CartButton />
           <Link className="btn btn--primary always nav-cta" href="/build-fest">
             BuildFest 2026
             <span className="nav-badge" aria-hidden>

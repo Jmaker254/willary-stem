@@ -182,6 +182,7 @@ export const cohortSchema = z.object({
   location: optStr(200),
   ageRange: optStr(80),
   priceKes: optStr(60),
+  priceAmountKes: z.coerce.number().int().min(0).max(10_000_000).default(0),
   capacity: z.coerce.number().int().min(0).max(100000).optional(),
   summary: str(1200),
   status: z.enum(["OPEN", "UPCOMING", "FULL", "CLOSED"]).default("OPEN"),
@@ -193,10 +194,80 @@ export const cohortBookingSchema = z.object({
   cohortId: str(40),
   name: str(120),
   email: z.string().trim().email().max(200),
-  phone: optStr(40),
+  phone: z
+    .string()
+    .trim()
+    .min(9, "Enter the Safaricom number you'll pay from (e.g. 0796 815 446)")
+    .max(20),
   learnerName: optStr(120),
   learnerAge: optStr(40),
   notes: optStr(2000),
+});
+
+export const classPaymentSchema = z.object({
+  publicRef: str(64),
+  mpesaCode: z
+    .string()
+    .trim()
+    .regex(
+      /^[A-Za-z0-9]{8,15}$/,
+      "Enter the M-Pesa confirmation code from your SMS (e.g. TIA7X2K9LM)",
+    ),
+  amount: z.coerce.number().int().min(1).max(10_000_000),
+});
+
+const slug = (max = 100) =>
+  z
+    .string()
+    .trim()
+    .min(1)
+    .max(max)
+    .regex(/^[a-z0-9-]+$/, "Lowercase letters, numbers and hyphens only");
+
+export const productCategorySchema = z.object({
+  name: str(120),
+  slug: slug(80),
+  summary: optStr(600),
+  imageUrl: optStr(600),
+  published: z.coerce.boolean().default(true),
+  order: z.coerce.number().int().min(0).max(9999).default(0),
+});
+
+export const PRODUCT_STATUSES = [
+  "AVAILABLE",
+  "SOLD_OUT",
+  "COMING_SOON",
+] as const;
+
+export const productSchema = z.object({
+  name: str(160),
+  slug: slug(100),
+  summary: str(1200),
+  body: optStr(20000),
+  priceKes: z.coerce.number().int().min(0).max(10_000_000).default(0),
+  compareKes: z.coerce.number().int().min(0).max(10_000_000).optional(),
+  sku: optStr(80),
+  stockQty: z.coerce.number().int().min(0).max(1_000_000).optional(),
+  status: z.enum(PRODUCT_STATUSES).default("AVAILABLE"),
+  imageUrl: optStr(600),
+  images: z.string().trim().max(8000).optional().default(""),
+  featured: z.coerce.boolean().default(false),
+  categoryId: optStr(40),
+  published: z.coerce.boolean().default(true),
+  order: z.coerce.number().int().min(0).max(9999).default(0),
+});
+
+export const orderRequestSchema = z.object({
+  name: str(120),
+  email: z.string().trim().email().max(200),
+  phone: z
+    .string()
+    .trim()
+    .min(7, "Enter a phone number we can reach you on")
+    .max(30),
+  address: optStr(500),
+  notes: optStr(1500),
+  cart: z.string().trim().min(2).max(20000),
 });
 
 export const postSchema = z.object({

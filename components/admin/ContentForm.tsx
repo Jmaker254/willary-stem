@@ -10,7 +10,13 @@ import { MediaPicker, MediaListPicker } from "@/components/admin/MediaPicker";
 export type Field =
   | { name: string; label: string; type: "text" | "url" | "number"; hint?: string; required?: boolean }
   | { name: string; label: string; type: "textarea"; hint?: string; required?: boolean; rows?: number }
-  | { name: string; label: string; type: "select"; options: string[]; hint?: string }
+  | {
+      name: string;
+      label: string;
+      type: "select";
+      options: Array<string | { value: string; label: string }>;
+      hint?: string;
+    }
   | { name: string; label: string; type: "checkbox"; hint?: string }
   | { name: string; label: string; type: "list"; hint?: string }
   | { name: string; label: string; type: "media" | "media-list"; hint?: string };
@@ -88,17 +94,24 @@ export default function ContentForm({
                 defaultValue={asStr(f.name)}
               />
             ) : f.type === "select" ? (
-              <select
-                id={`f-${f.name}`}
-                name={f.name}
-                defaultValue={(v(f.name) as string) ?? f.options[0]}
-              >
-                {f.options.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </select>
+              (() => {
+                const opts = f.options.map((o) =>
+                  typeof o === "string" ? { value: o, label: o } : o,
+                );
+                return (
+                  <select
+                    id={`f-${f.name}`}
+                    name={f.name}
+                    defaultValue={(v(f.name) as string) ?? opts[0]?.value ?? ""}
+                  >
+                    {opts.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                );
+              })()
             ) : (
               <input
                 id={`f-${f.name}`}

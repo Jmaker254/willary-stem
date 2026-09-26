@@ -13,6 +13,7 @@ import {
   PARTNERS,
   POSTS,
   COHORTS,
+  PRODUCT_CATEGORIES,
 } from "../lib/fixtures";
 
 const prisma = new PrismaClient();
@@ -45,6 +46,7 @@ async function main() {
     ["buildFestTime", SETTINGS.buildFestTime],
     ["buildFestVenue", SETTINGS.buildFestVenue],
     ["buildFestTicketKes", SETTINGS.buildFestTicketKes],
+    ["classPayInfo", SETTINGS.classPayInfo],
     ["logoUrl", SETTINGS.logoUrl],
     ["photosAlbumUrl", SETTINGS.photosAlbumUrl],
     ["social.tiktok", SETTINGS.social.tiktok],
@@ -184,6 +186,7 @@ async function main() {
           location: c.location ?? null,
           ageRange: c.ageRange ?? null,
           priceKes: c.priceKes ?? null,
+          priceAmountKes: c.priceAmountKes ?? 0,
           capacity: c.capacity ?? null,
           summary: c.summary,
           status: c.status,
@@ -217,6 +220,27 @@ async function main() {
   } else {
     console.log("• posts already present — skipped");
   }
+
+  // --- Shop: product categories ---
+  for (const c of PRODUCT_CATEGORIES) {
+    await prisma.productCategory.upsert({
+      where: { slug: c.slug },
+      update: {
+        name: c.name,
+        summary: c.summary ?? null,
+        imageUrl: c.imageUrl ?? null,
+        order: c.order,
+      },
+      create: {
+        slug: c.slug,
+        name: c.name,
+        summary: c.summary ?? null,
+        imageUrl: c.imageUrl ?? null,
+        order: c.order,
+      },
+    });
+  }
+  console.log(`✓ ${PRODUCT_CATEGORIES.length} product categories`);
 
   console.log("\nSeed complete.");
 }

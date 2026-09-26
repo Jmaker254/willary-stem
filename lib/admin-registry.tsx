@@ -13,6 +13,8 @@ import {
   savePartner,
   savePost,
   saveCohort,
+  saveProduct,
+  saveProductCategory,
 } from "@/actions/admin/content";
 import type { FormState } from "@/lib/form";
 
@@ -27,7 +29,9 @@ export type ContentKey =
   | "testimonials"
   | "partners"
   | "posts"
-  | "cohorts";
+  | "cohorts"
+  | "products"
+  | "product-categories";
 
 interface Entry {
   key: ContentKey;
@@ -44,7 +48,9 @@ interface Entry {
     | "testimonial"
     | "partner"
     | "post"
-    | "cohort";
+    | "cohort"
+    | "product"
+    | "productCategory";
   canPublish: boolean;
   fields: Field[];
   columns: { header: string; get: (row: Record<string, unknown>) => string }[];
@@ -364,7 +370,8 @@ export const REGISTRY: Record<ContentKey, Entry> = {
       { name: "scheduleText", label: "Schedule", type: "text", hint: 'e.g. "Saturdays, 9–11 AM · 8 weeks"' },
       { name: "location", label: "Location (physical / hybrid)", type: "text" },
       { name: "ageRange", label: "Age range", type: "text", hint: 'e.g. "Ages 8–13"' },
-      { name: "priceKes", label: "Price", type: "text", hint: 'e.g. "KES 6,000" or "Free"' },
+      { name: "priceKes", label: "Price (display text)", type: "text", hint: 'e.g. "KES 6,000" or "Free"' },
+      { name: "priceAmountKes", label: "Price to charge (KES, 0 = free)", type: "number", hint: "Numeric amount collected via M-Pesa. 0 skips the payment step." },
       { name: "capacity", label: "Capacity (optional)", type: "number" },
       { name: "summary", label: "Summary", type: "textarea", rows: 3 },
       { name: "published", label: "Published", type: "checkbox" },
@@ -379,6 +386,72 @@ export const REGISTRY: Record<ContentKey, Entry> = {
     list: () => prisma.cohort.findMany({ orderBy: { order: "asc" } }),
     find: (id) => prisma.cohort.findUnique({ where: { id } }),
     save: saveCohort,
+  },
+
+  "product-categories": {
+    key: "product-categories",
+    singular: "product category",
+    plural: "Product categories",
+    model: "productCategory",
+    canPublish: true,
+    fields: [
+      { name: "name", label: "Name", type: "text", required: true },
+      { name: "slug", label: "Slug", type: "text", hint: "lowercase-with-hyphens; used in /shop/c/<slug>" },
+      { name: "summary", label: "Summary (optional)", type: "textarea", rows: 3 },
+      { name: "imageUrl", label: "Category image (optional)", type: "media", hint: "Shown on the shop landing page." },
+      { name: "published", label: "Published", type: "checkbox" },
+      { name: "order", label: "Order", type: "number" },
+    ],
+    columns: [
+      { header: "Name", get: (r) => s(r.name) },
+      { header: "Slug", get: (r) => s(r.slug) },
+    ],
+    list: () =>
+      prisma.productCategory.findMany({ orderBy: [{ order: "asc" }, { name: "asc" }] }),
+    find: (id) => prisma.productCategory.findUnique({ where: { id } }),
+    save: saveProductCategory,
+  },
+
+  products: {
+    key: "products",
+    singular: "product",
+    plural: "Products",
+    model: "product",
+    canPublish: true,
+    fields: [
+      { name: "name", label: "Name", type: "text", required: true },
+      { name: "slug", label: "Slug", type: "text", hint: "lowercase-with-hyphens; used in /shop/<slug>" },
+      { name: "categoryId", label: "Category", type: "select", options: [""] },
+      { name: "summary", label: "Summary", type: "textarea", rows: 3, hint: "Shown on product cards and the listing." },
+      { name: "body", label: "Description (Markdown, optional)", type: "textarea", rows: 8 },
+      { name: "priceKes", label: "Price (KES)", type: "number", hint: "Whole shillings." },
+      { name: "compareKes", label: "Compare-at price (KES, optional)", type: "number", hint: 'Shows a strike-through "was" price.' },
+      { name: "stockQty", label: "Stock quantity (optional)", type: "number", hint: "Leave blank if you don't track stock." },
+      { name: "sku", label: "SKU (optional)", type: "text" },
+      { name: "status", label: "Status", type: "select", options: ["AVAILABLE", "SOLD_OUT", "COMING_SOON"] },
+      { name: "imageUrl", label: "Main image", type: "media", hint: "Upload or paste a URL." },
+      { name: "images", label: "Gallery (optional)", type: "media-list", hint: "Extra photos shown on the product page." },
+      { name: "featured", label: "Featured on the shop landing page", type: "checkbox" },
+      { name: "published", label: "Published", type: "checkbox" },
+      { name: "order", label: "Order", type: "number" },
+    ],
+    columns: [
+      { header: "Name", get: (r) => s(r.name) },
+      {
+        header: "Category",
+        get: (r) => s((r.category as { name?: string } | null)?.name),
+      },
+      { header: "Price", get: (r) => `KES ${s(r.priceKes)}` },
+      { header: "Featured", get: (r) => (r.featured ? "★" : "") },
+    ],
+    list: () =>
+      prisma.product.findMany({
+        orderBy: [{ order: "asc" }, { name: "asc" }],
+        include: { category: true },
+      }),
+    find: (id) =>
+      prisma.product.findUnique({ where: { id }, include: { category: true } }),
+    save: saveProduct,
   },
 };
 

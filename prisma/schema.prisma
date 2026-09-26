@@ -354,22 +354,23 @@ enum CohortStatus {
 }
 
 model Cohort {
-  id           String         @id @default(cuid())
+  id           String          @id @default(cuid())
   title        String
   program      String
-  mode         ClassMode      @default(PHYSICAL)
+  mode         ClassMode       @default(PHYSICAL)
   startText    String
   scheduleText String
   location     String?
   ageRange     String?
   priceKes     String?
+  priceAmountKes Int           @default(0)
   capacity     Int?
   summary      String
-  status       CohortStatus   @default(OPEN)
-  published    Boolean        @default(true)
-  order        Int            @default(0)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  status       CohortStatus    @default(OPEN)
+  published    Boolean         @default(true)
+  order        Int             @default(0)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
   bookings     CohortBooking[]
 
   @@index([published, status, order])
@@ -377,23 +378,31 @@ model Cohort {
 
 enum BookingStatus {
   NEW
+  AWAITING_PAYMENT
+  PENDING_CONFIRMATION
   CONFIRMED
+  REJECTED
   WAITLIST
   CANCELLED
 }
 
 model CohortBooking {
-  id          String        @id @default(cuid())
-  cohortId    String
-  cohort      Cohort        @relation(fields: [cohortId], references: [id], onDelete: Cascade)
-  name        String
-  email       String
-  phone       String?
-  learnerName String?
-  learnerAge  String?
-  notes       String?
-  status      BookingStatus @default(NEW)
-  createdAt   DateTime      @default(now())
+  id               String        @id @default(cuid())
+  cohortId         String
+  cohort           Cohort        @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  name             String
+  email            String
+  phone            String?
+  learnerName      String?
+  learnerAge       String?
+  notes            String?
+  status           BookingStatus @default(NEW)
+  publicRef        String?       @unique
+  mpesaCode        String?
+  amountClaimedKes Int?
+  paymentClaimedAt DateTime?
+  confirmedAt      DateTime?
+  createdAt        DateTime      @default(now())
 
   @@index([cohortId, status])
   @@index([createdAt])
@@ -434,4 +443,91 @@ model MediaAsset {
   createdAt    DateTime  @default(now())
 
   @@index([type, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Shop — catalogue & orders
+// ---------------------------------------------------------------------------
+
+model ProductCategory {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  name      String
+  summary   String?
+  imageUrl  String?
+  published Boolean   @default(true)
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+
+  @@index([published, order])
+}
+
+enum ProductStatus {
+  AVAILABLE
+  SOLD_OUT
+  COMING_SOON
+}
+
+model Product {
+  id         String           @id @default(cuid())
+  slug       String           @unique
+  name       String
+  summary    String
+  body       String?
+  priceKes   Int              @default(0)
+  compareKes Int? // optional strike-through "was" price
+  sku        String?
+  stockQty   Int? // null = stock not tracked
+  status     ProductStatus    @default(AVAILABLE)
+  imageUrl   String?
+  images     String[]         @default([])
+  featured   Boolean          @default(false)
+  categoryId String?
+  category   ProductCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  published  Boolean          @default(true)
+  order      Int              @default(0)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@index([published, order])
+  @@index([categoryId, published, order])
+}
+
+enum OrderStatus {
+  REQUESTED
+  CONFIRMED
+  PAID
+  FULFILLED
+  CANCELLED
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  ref         String      @unique // WS-3F9K2A, shown to the customer
+  status      OrderStatus @default(REQUESTED)
+  name        String
+  email       String
+  phone       String
+  address     String?
+  notes       String?
+  subtotalKes Int         @default(0)
+  items       OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([status, createdAt])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String? // null-safe if the product is later deleted
+  name      String // snapshot at order time
+  priceKes  Int // snapshot unit price
+  quantity  Int
+
+  @@index([orderId])
 }

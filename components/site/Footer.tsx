@@ -53,6 +53,9 @@ export default function Footer({ settings }: { settings: SiteSettings }) {
                 <Link href="/blog">Blog &amp; news</Link>
               </li>
               <li>
+                <Link href="/shop">Shop</Link>
+              </li>
+              <li>
                 <Link href="/build-fest">BuildFest 2026</Link>
               </li>
             </ul>

@@ -1,11 +1,99 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import Link from "next/link";
 import { bookCohort } from "@/actions/cohort-bookings";
-import { IDLE } from "@/lib/form";
+import { BOOKING_FLOW_IDLE } from "@/lib/cohort-booking-state";
 import SubmitButton from "./SubmitButton";
-import FormMessage from "./FormMessage";
+import ClassPayStep from "./ClassPayStep";
+import { formatKes } from "@/lib/money";
 import type { Cohort } from "@/lib/types";
+
+function PayOrWaitStep({
+  publicRef,
+  reference,
+  amountKes,
+  payInfo,
+  cohortTitle,
+}: {
+  publicRef: string;
+  reference: string;
+  amountKes: number;
+  payInfo: string;
+  cohortTitle: string;
+}) {
+  const [choice, setChoice] = useState<"choice" | "pay" | "waiting">("choice");
+
+  if (choice === "pay") {
+    return (
+      <ClassPayStep
+        publicRef={publicRef}
+        reference={reference}
+        amountKes={amountKes}
+        payInfo={payInfo}
+        cohortTitle={cohortTitle}
+      />
+    );
+  }
+
+  if (choice === "waiting") {
+    return (
+      <div className="form-card" role="status">
+        <h2 style={{ fontSize: "1.3rem", marginTop: 0 }}>You&rsquo;re on the list</h2>
+        <p>
+          You&rsquo;ve got a spot held for <strong>{cohortTitle}</strong> —
+          reference <strong>{reference}</strong>. Pay any time before the class
+          starts to confirm it.
+        </p>
+        <p className="form-note">
+          Amount: {formatKes(amountKes)}. We&rsquo;ll follow up by email as a
+          reminder — you can also come back and pay whenever you&rsquo;re ready.
+        </p>
+        <div className="inline-actions" style={{ marginTop: 12 }}>
+          <button
+            type="button"
+            className="btn btn--primary btn--sm"
+            onClick={() => setChoice("pay")}
+          >
+            Actually, pay now
+          </button>
+          <Link className="btn btn--ghost btn--sm" href={`/booking/${publicRef}`}>
+            View booking status
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="form-card">
+      <h2 style={{ fontSize: "1.3rem", marginTop: 0 }}>Reserve your place</h2>
+      <p>
+        <strong>{cohortTitle}</strong> — {formatKes(amountKes)}
+      </p>
+      <p>
+        Payments are open now, but you don&rsquo;t have to pay right away —
+        you can just join the list and pay any time before the class starts.
+      </p>
+      <div className="inline-actions" style={{ marginTop: 12 }}>
+        <button
+          type="button"
+          className="btn btn--primary"
+          onClick={() => setChoice("pay")}
+        >
+          Pay now with M-Pesa
+        </button>
+        <button
+          type="button"
+          className="btn btn--ghost"
+          onClick={() => setChoice("waiting")}
+        >
+          Just add me to the list
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function CohortBookingForm({
   cohorts,
@@ -14,8 +102,47 @@ export default function CohortBookingForm({
   cohorts: Cohort[];
   defaultCohortId?: string;
 }) {
-  const [state, action] = useActionState(bookCohort, IDLE);
+  const [state, action] = useActionState(bookCohort, BOOKING_FLOW_IDLE);
   const bookable = cohorts.filter((c) => c.status !== "CLOSED");
+
+  if (state.status === "pay") {
+    return (
+      <PayOrWaitStep
+        publicRef={state.publicRef}
+        reference={state.ref}
+        amountKes={state.amountKes}
+        payInfo={state.payInfo}
+        cohortTitle={state.cohortTitle}
+      />
+    );
+  }
+
+  if (state.status === "submitted") {
+    return (
+      <div className="form-card" role="status">
+        <h2 style={{ fontSize: "1.3rem", marginTop: 0 }}>Payment details received</h2>
+        <p>{state.message}</p>
+        <p style={{ marginTop: 16 }}>
+          <Link className="btn btn--primary" href={`/booking/${state.publicRef}`}>
+            Check your booking status
+          </Link>
+        </p>
+      </div>
+    );
+  }
+
+  if (state.status === "waitlisted" || state.status === "booked_free") {
+    return (
+      <div className="form-card" role="status">
+        <h2 style={{ fontSize: "1.3rem", marginTop: 0 }}>
+          {state.status === "waitlisted" ? "You're on the waitlist" : "Booking received"}
+        </h2>
+        <p className="form-feedback is-ok">{state.message}</p>
+      </div>
+    );
+  }
+
+  const fe = state.status === "error" ? state.fieldErrors ?? {} : {};
 
   return (
     <form action={action} className="form-card" id="book">
@@ -48,14 +175,24 @@ export default function CohortBookingForm({
       <div className="field">
         <label htmlFor="b-name">Your name</label>
         <input id="b-name" name="name" required />
+        {fe.name && <p className="field-error">{fe.name}</p>}
       </div>
       <div className="field">
         <label htmlFor="b-email">Email</label>
         <input id="b-email" type="email" name="email" required />
+        {fe.email && <p className="field-error">{fe.email}</p>}
       </div>
       <div className="field">
-        <label htmlFor="b-phone">Phone / WhatsApp</label>
-        <input id="b-phone" name="phone" inputMode="tel" placeholder="07XX XXX XXX" />
+        <label htmlFor="b-phone">Phone / WhatsApp (the number you&rsquo;ll pay from)</label>
+        <input
+          id="b-phone"
+          name="phone"
+          type="tel"
+          inputMode="tel"
+          placeholder="07XX XXX XXX"
+          required
+        />
+        {fe.phone && <p className="field-error">{fe.phone}</p>}
       </div>
 
       <div className="admin-form" style={{ maxWidth: "none" }}>
@@ -79,10 +216,15 @@ export default function CohortBookingForm({
       <SubmitButton className="btn btn--primary btn--block" pendingText="Sending…">
         Request a place
       </SubmitButton>
-      <FormMessage state={state} />
+      {state.status === "error" && (
+        <p className="form-feedback is-error" role="status">
+          {state.message}
+        </p>
+      )}
       <p className="form-note">
-        This is a booking request — we confirm your place and send payment
-        details by email.
+        Paid classes let you pay by M-Pesa right away or just reserve a spot
+        and pay later; we confirm your place by email once payment is
+        received.
       </p>
     </form>
   );

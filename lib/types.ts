@@ -118,9 +118,40 @@ export interface Cohort {
   location?: string | null;
   ageRange?: string | null;
   priceKes?: string | null;
+  priceAmountKes: number;
   capacity?: number | null;
   summary: string;
   status: "OPEN" | "UPCOMING" | "FULL" | "CLOSED";
+  order: number;
+}
+
+export type ProductStatus = "AVAILABLE" | "SOLD_OUT" | "COMING_SOON";
+
+export interface ProductCategory {
+  id: string;
+  slug: string;
+  name: string;
+  summary?: string | null;
+  imageUrl?: string | null;
+  order: number;
+}
+
+export interface Product {
+  id: string;
+  slug: string;
+  name: string;
+  summary: string;
+  body?: string | null;
+  priceKes: number;
+  compareKes?: number | null;
+  sku?: string | null;
+  stockQty?: number | null;
+  status: ProductStatus;
+  imageUrl?: string | null;
+  images: string[];
+  featured: boolean;
+  categorySlug?: string | null;
+  categoryName?: string | null;
   order: number;
 }
 
@@ -139,6 +170,7 @@ export interface SiteSettings {
   buildFestTime: string;
   buildFestVenue: string;
   buildFestTicketKes: string;
+  classPayInfo: string;
   logoUrl: string;
   photosAlbumUrl: string;
   social: {

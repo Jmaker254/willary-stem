@@ -21,6 +21,7 @@ export const PAGE_IMAGE_SLOTS: { slot: string; label: string; hint: string }[] =
   { slot: "buildfest_cleaner", label: "BuildFest — 'a cleaner Nairobi'", hint: "Environment / clean-tech image for the challenge section." },
   { slot: "buildfest_exhibitor_bg", label: "BuildFest — exhibitor section background", hint: "Wide shot of exhibitor booths / a busy hall." },
   { slot: "contact_map", label: "Contact — map / location", hint: "A map screenshot or a photo of the area." },
+  { slot: "shop_hero", label: "Shop — hero banner background", hint: "Wide shot of kits / components on the bench. Sits behind the dark shop page-hero banner." },
 ];
 
 export const PAGE_IMAGE_SLOT_KEYS = PAGE_IMAGE_SLOTS.map((s) => s.slot);

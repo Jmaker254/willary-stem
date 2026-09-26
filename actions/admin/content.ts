@@ -15,6 +15,8 @@ import {
   pastPartnerSchema,
   postSchema,
   cohortSchema,
+  productSchema,
+  productCategorySchema,
 } from "@/lib/validators";
 import { PAGE_IMAGE_SLOT_KEYS } from "@/lib/page-images";
 import {
@@ -28,7 +30,7 @@ import {
 } from "./helpers";
 
 /** Public paths that must refresh when content changes. */
-const SITE_PATHS = ["/", "/about", "/programs", "/lab", "/impact", "/events", "/build-fest", "/partner", "/contact"];
+const SITE_PATHS = ["/", "/about", "/programs", "/lab", "/impact", "/events", "/build-fest", "/partner", "/contact", "/shop"];
 function revalidateSite() {
   for (const p of SITE_PATHS) revalidatePath(p);
 }
@@ -381,6 +383,7 @@ export async function saveCohort(
     location: d.location ?? null,
     ageRange: d.ageRange ?? null,
     priceKes: d.priceKes ?? null,
+    priceAmountKes: d.priceAmountKes,
     capacity: d.capacity ?? null,
     summary: d.summary,
     status: d.status,
@@ -397,6 +400,79 @@ export async function saveCohort(
   }
   revalidateSite();
   redirect("/admin/content/cohorts?saved=1");
+}
+
+// --------------------------------------------------------------------------
+// Shop — product categories
+// --------------------------------------------------------------------------
+export async function saveProductCategory(
+  id: string | null,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await guard("EDITOR");
+  const p = parseForm(productCategorySchema, formData);
+  if (!p.ok) return p.state;
+  const d = p.data;
+  const data = {
+    name: d.name,
+    slug: d.slug,
+    summary: d.summary ?? null,
+    imageUrl: d.imageUrl ?? null,
+    published: d.published,
+    order: d.order,
+  };
+  try {
+    const row = id
+      ? await prisma.productCategory.update({ where: { id }, data })
+      : await prisma.productCategory.create({ data });
+    await audit(null, id ? "update" : "create", "ProductCategory", row.id);
+  } catch (e) {
+    return fail(dbMessage(e, "slug"));
+  }
+  revalidateSite();
+  redirect("/admin/content/product-categories?saved=1");
+}
+
+// --------------------------------------------------------------------------
+// Shop — products
+// --------------------------------------------------------------------------
+export async function saveProduct(
+  id: string | null,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await guard("EDITOR");
+  const p = parseForm(productSchema, formData);
+  if (!p.ok) return p.state;
+  const d = p.data;
+  const data = {
+    name: d.name,
+    slug: d.slug,
+    summary: d.summary,
+    body: d.body ?? null,
+    priceKes: d.priceKes,
+    compareKes: d.compareKes ?? null,
+    sku: d.sku ?? null,
+    stockQty: d.stockQty ?? null,
+    status: d.status,
+    imageUrl: d.imageUrl ?? null,
+    images: splitList(d.images),
+    featured: d.featured,
+    categoryId: d.categoryId || null,
+    published: d.published,
+    order: d.order,
+  };
+  try {
+    const row = id
+      ? await prisma.product.update({ where: { id }, data })
+      : await prisma.product.create({ data });
+    await audit(null, id ? "update" : "create", "Product", row.id);
+  } catch (e) {
+    return fail(dbMessage(e, "slug"));
+  }
+  revalidateSite();
+  redirect("/admin/content/products?saved=1");
 }
 
 // --------------------------------------------------------------------------
@@ -470,7 +546,9 @@ type Model =
   | "testimonial"
   | "partner"
   | "post"
-  | "cohort";
+  | "cohort"
+  | "product"
+  | "productCategory";
 
 const RETURN: Record<Model, string> = {
   project: "/admin/content/projects",
@@ -484,6 +562,8 @@ const RETURN: Record<Model, string> = {
   partner: "/admin/content/partners",
   post: "/admin/content/posts",
   cohort: "/admin/content/cohorts",
+  product: "/admin/content/products",
+  productCategory: "/admin/content/product-categories",
 };
 
 interface Delegate {

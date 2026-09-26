@@ -52,6 +52,16 @@ const GROUPS: { title: string; fields: [string, string, string?][] }[] = [
     ],
   },
   {
+    title: "Class bookings",
+    fields: [
+      [
+        "classPayInfo",
+        "M-Pesa payment instructions (shown on the class payment step)",
+        "textarea",
+      ],
+    ],
+  },
+  {
     title: "Social links",
     fields: [
       ["social.tiktok", "TikTok URL"],
@@ -96,12 +106,21 @@ export default function SettingsForm({
           {g.fields.map(([name, label, type]) => (
             <div className="field" key={name}>
               <label htmlFor={`set-${name}`}>{label}</label>
-              <input
-                id={`set-${name}`}
-                name={name}
-                type={type === "number" ? "number" : "text"}
-                defaultValue={values[name] ?? ""}
-              />
+              {type === "textarea" ? (
+                <textarea
+                  id={`set-${name}`}
+                  name={name}
+                  rows={4}
+                  defaultValue={values[name] ?? ""}
+                />
+              ) : (
+                <input
+                  id={`set-${name}`}
+                  name={name}
+                  type={type === "number" ? "number" : "text"}
+                  defaultValue={values[name] ?? ""}
+                />
+              )}
             </div>
           ))}
         </div>

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Announce from "@/components/site/Announce";
 import Header from "@/components/site/Header";
 import Footer from "@/components/site/Footer";
+import CartProvider from "@/components/shop/CartProvider";
 import { getSettings } from "@/lib/content";
 
 // Content is DB-driven and editable from the admin — always render fresh.
@@ -14,11 +15,11 @@ export default async function SiteLayout({
 }) {
   const settings = await getSettings();
   return (
-    <>
+    <CartProvider>
       <Announce settings={settings} />
       <Header siteName={settings.siteName} logoUrl={settings.logoUrl || undefined} />
       <main>{children}</main>
       <Footer settings={settings} />
-    </>
+    </CartProvider>
   );
 }

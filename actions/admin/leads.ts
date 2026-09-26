@@ -2,7 +2,9 @@
 
 import crypto from "node:crypto";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { sendMail } from "@/lib/email";
 import { guard, audit, ok, fail, type FormState } from "./helpers";
 import {
   SubmissionStatus,
@@ -10,6 +12,9 @@ import {
   SubscriberStatus,
   BookingStatus,
 } from "@prisma/client";
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.willaryrobotics.com";
 
 export async function setSubmissionStatus(
   id: string,
@@ -50,6 +55,64 @@ export async function deleteCohortBooking(id: string): Promise<void> {
   await prisma.cohortBooking.delete({ where: { id } });
   await audit(u.id, "delete", "CohortBooking", id);
   revalidatePath("/admin/cohort-bookings");
+  redirect("/admin/cohort-bookings");
+}
+
+function revalidateBooking(id: string, publicRef: string | null) {
+  revalidatePath("/admin/cohort-bookings");
+  revalidatePath(`/admin/cohort-bookings/${id}`);
+  revalidatePath("/admin");
+  revalidatePath("/programs");
+  if (publicRef) revalidatePath(`/booking/${publicRef}`);
+}
+
+export async function confirmClassPayment(id: string): Promise<void> {
+  const u = await guard("EDITOR");
+  const row = await prisma.cohortBooking.update({
+    where: { id },
+    data: { status: "CONFIRMED", confirmedAt: new Date() },
+    include: { cohort: true },
+  });
+  await audit(u.id, "confirm-payment", "CohortBooking", id);
+
+  const ref = `CLS-${row.id.slice(-6).toUpperCase()}`;
+  await sendMail(
+    row.email,
+    `Payment confirmed — ${row.cohort.title}`,
+    `Hi ${row.name},\n\n` +
+      `Your payment is confirmed and your place in "${row.cohort.title}" is booked.\n\n` +
+      `  ${row.cohort.startText}\n` +
+      `  ${row.cohort.scheduleText}\n` +
+      `${row.cohort.location ? `  ${row.cohort.location}\n` : ""}` +
+      `\nBooking reference: ${ref}\n` +
+      `Status page: ${SITE_URL}/booking/${row.publicRef ?? ""}\n\n` +
+      `We'll send joining details before the start date.\n\n— Willary STEM`,
+  );
+
+  revalidateBooking(id, row.publicRef);
+}
+
+export async function rejectClassPayment(id: string): Promise<void> {
+  const u = await guard("EDITOR");
+  const row = await prisma.cohortBooking.update({
+    where: { id },
+    data: { status: "REJECTED" },
+    include: { cohort: true },
+  });
+  await audit(u.id, "reject-payment", "CohortBooking", id);
+
+  const ref = `CLS-${row.id.slice(-6).toUpperCase()}`;
+  await sendMail(
+    row.email,
+    `We couldn't confirm your payment — ${row.cohort.title}`,
+    `Hi ${row.name},\n\n` +
+      `We weren't able to match the M-Pesa details you sent for "${row.cohort.title}" ` +
+      `to a payment on our statement.\n\n` +
+      `Please reply to this email with your full M-Pesa confirmation message and ` +
+      `your reference (${ref}) and we'll sort it out.\n\n— Willary STEM`,
+  );
+
+  revalidateBooking(id, row.publicRef);
 }
 
 export async function setSubscriberStatus(

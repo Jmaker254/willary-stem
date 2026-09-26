@@ -11,6 +11,8 @@ import type {
   Partner,
   Post,
   Cohort,
+  ProductCategory,
+  Product,
 } from "./types";
 
 /**
@@ -35,6 +37,8 @@ export const SETTINGS: SiteSettings = {
   buildFestTime: "8:00 AM – 5:30 PM",
   buildFestVenue: "Nairobi, Kenya — university venue to be confirmed",
   buildFestTicketKes: "500",
+  classPayInfo:
+    "Lipa na M-Pesa → Pay Bill → Business no. 000000 → Account: the reference shown below → enter the exact amount shown. Once M-Pesa sends you the confirmation SMS, paste the confirmation code below.",
   logoUrl: "",
   photosAlbumUrl: "",
   social: {
@@ -386,6 +390,7 @@ export const COHORTS: Cohort[] = [
     location: "Willary STEM, Nairobi",
     ageRange: "Ages 8–13",
     priceKes: "KES 6,000",
+    priceAmountKes: 6000,
     capacity: 16,
     summary:
       "Block-based coding from first principles — logic, loops, events — ending with a game each learner builds and explains.",
@@ -401,6 +406,7 @@ export const COHORTS: Cohort[] = [
     scheduleText: "Tue & Thu, 5:00–6:30 PM · 6 weeks (live online)",
     ageRange: "Ages 13+ and adults",
     priceKes: "KES 9,000",
+    priceAmountKes: 9000,
     capacity: 20,
     summary:
       "Build and program a microcontroller robot from home: sensors, motors, wireless control, and an autonomous behaviour you design.",
@@ -408,3 +414,60 @@ export const COHORTS: Cohort[] = [
     order: 2,
   },
 ];
+
+// ---------------------------------------------------------------------------
+// Shop
+// ---------------------------------------------------------------------------
+
+export const PRODUCT_CATEGORIES: ProductCategory[] = [
+  {
+    id: "seed-cat-robotics-kits",
+    slug: "robotics-kits",
+    name: "Robotics Kits",
+    summary: "Build-and-learn robot kits — chassis, motors, controllers and everything to get moving.",
+    imageUrl: null,
+    order: 1,
+  },
+  {
+    id: "seed-cat-arduino-microcontrollers",
+    slug: "arduino-microcontrollers",
+    name: "Arduino & Microcontrollers",
+    summary: "Arduino, ESP32, Raspberry Pi Pico and other development boards.",
+    imageUrl: null,
+    order: 2,
+  },
+  {
+    id: "seed-cat-electronic-components",
+    slug: "electronic-components",
+    name: "Electronic Components",
+    summary: "Resistors, capacitors, ICs, connectors, wiring and the small parts every build needs.",
+    imageUrl: null,
+    order: 3,
+  },
+  {
+    id: "seed-cat-sensors-modules",
+    slug: "sensors-modules",
+    name: "Sensors & Modules",
+    summary: "Sensor breakouts and add-on modules — motion, distance, environment, and more.",
+    imageUrl: null,
+    order: 4,
+  },
+  {
+    id: "seed-cat-3d-designs-prints",
+    slug: "3d-designs-prints",
+    name: "3D Designs & Prints",
+    summary: "Downloadable 3D design files and made-to-order printed parts.",
+    imageUrl: null,
+    order: 5,
+  },
+  {
+    id: "seed-cat-power-batteries",
+    slug: "power-batteries",
+    name: "Power & Batteries",
+    summary: "Batteries, chargers, power supplies and power accessories.",
+    imageUrl: null,
+    order: 6,
+  },
+];
+
+export const PRODUCTS: Product[] = [];

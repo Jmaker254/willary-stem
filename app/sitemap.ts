@@ -1,5 +1,9 @@
 import type { MetadataRoute } from "next";
-import { getPostSlugs } from "@/lib/content";
+import {
+  getPostSlugs,
+  getProductSlugs,
+  getProductCategorySlugs,
+} from "@/lib/content";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.willaryrobotics.com";
@@ -20,6 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/impact", priority: 0.6, changeFrequency: "monthly" },
     { path: "/events", priority: 0.7, changeFrequency: "weekly" },
     { path: "/blog", priority: 0.7, changeFrequency: "weekly" },
+    { path: "/shop", priority: 0.8, changeFrequency: "weekly" },
     { path: "/partner", priority: 0.6, changeFrequency: "monthly" },
     { path: "/contact", priority: 0.5, changeFrequency: "yearly" },
     { path: "/terms", priority: 0.2, changeFrequency: "yearly" },
@@ -45,6 +50,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch {
     /* posts optional */
+  }
+
+  try {
+    const [catSlugs, productSlugs] = await Promise.all([
+      getProductCategorySlugs(),
+      getProductSlugs(),
+    ]);
+    for (const slug of catSlugs) {
+      entries.push({
+        url: `${SITE_URL}/shop/c/${slug}`,
+        lastModified: now,
+        changeFrequency: "weekly",
+        priority: 0.6,
+      });
+    }
+    for (const slug of productSlugs) {
+      entries.push({
+        url: `${SITE_URL}/shop/${slug}`,
+        lastModified: now,
+        changeFrequency: "weekly",
+        priority: 0.6,
+      });
+    }
+  } catch {
+    /* shop optional */
   }
 
   return entries;

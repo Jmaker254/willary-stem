@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
   const csv = toCsv(
     rows.map((r) => ({
       createdAt: r.createdAt,
+      ref: `CLS-${r.id.slice(-6).toUpperCase()}`,
       status: r.status,
       class: r.cohort.title,
       mode: r.cohort.mode,
@@ -31,6 +32,11 @@ export async function GET(req: NextRequest) {
       phone: r.phone,
       learnerName: r.learnerName,
       learnerAge: r.learnerAge,
+      priceKes: r.cohort.priceAmountKes,
+      mpesaCode: r.mpesaCode,
+      amountClaimedKes: r.amountClaimedKes,
+      paymentClaimedAt: r.paymentClaimedAt,
+      confirmedAt: r.confirmedAt,
       notes: r.notes,
     })),
   );
