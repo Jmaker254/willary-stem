@@ -8,6 +8,7 @@ import {
   getPageImages,
   getCohorts,
   getTestimonials,
+  getSettings,
 } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -23,11 +24,12 @@ const MODE_LABEL: Record<string, string> = {
 };
 
 export default async function ProgramsPage() {
-  const [schools, pageImages, cohorts, studentQuotes] = await Promise.all([
+  const [schools, pageImages, cohorts, studentQuotes, settings] = await Promise.all([
     getSchools(),
     getPageImages(),
     getCohorts(),
     getTestimonials("students"),
+    getSettings(),
   ]);
   const offerBg = pageImages["programs_offer_bg"]?.url || null;
   const heroBg = pageImages["programs_hero"]?.url || null;
@@ -190,7 +192,7 @@ export default async function ProgramsPage() {
               </div>
 
               <div style={{ maxWidth: 640, margin: "0 auto" }}>
-                <CohortBookingForm cohorts={upcoming} />
+                <CohortBookingForm cohorts={upcoming} sitePhone={settings.phone} />
               </div>
             </>
           )}

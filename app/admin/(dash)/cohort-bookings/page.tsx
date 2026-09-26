@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import Badge from "@/components/admin/Badge";
-import { setCohortBookingStatus } from "@/actions/admin/leads";
+import ConfirmButton from "@/components/admin/ConfirmButton";
+import { moveCohortBookingStatus, deleteCohortBooking } from "@/actions/admin/leads";
 import { BookingStatus, Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -57,7 +58,7 @@ export default async function CohortBookingsPage({
                 <th>Class</th>
                 <th>Payment</th>
                 <th>Status</th>
-                <th>Move to</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -111,20 +112,29 @@ export default async function CohortBookingsPage({
                     <Badge value={r.status} />
                   </td>
                   <td>
-                    <span className="inline-actions">
-                      {Object.values(BookingStatus)
-                        .filter((s) => s !== r.status)
-                        .map((s) => (
-                          <form
-                            key={s}
-                            action={setCohortBookingStatus.bind(null, r.id, s)}
-                          >
-                            <button className="btn-link" type="submit">
-                              {s.toLowerCase()}
-                            </button>
-                          </form>
-                        ))}
-                    </span>
+                    <div className="inline-actions">
+                      <form action={moveCohortBookingStatus} className="inline-actions">
+                        <input type="hidden" name="id" value={r.id} />
+                        <select name="status" defaultValue={r.status}>
+                          {Object.values(BookingStatus).map((s) => (
+                            <option key={s} value={s}>
+                              {s.toLowerCase().replace(/_/g, " ")}
+                            </option>
+                          ))}
+                        </select>
+                        <button className="btn btn--ghost btn--sm" type="submit">
+                          Move
+                        </button>
+                      </form>
+                      <form action={deleteCohortBooking.bind(null, r.id)}>
+                        <ConfirmButton
+                          className="btn-link"
+                          message={`Delete ${r.name}'s booking? This can't be undone.`}
+                        >
+                          Delete
+                        </ConfirmButton>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               ))}

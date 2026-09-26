@@ -7,7 +7,22 @@ import { BOOKING_FLOW_IDLE } from "@/lib/cohort-booking-state";
 import SubmitButton from "./SubmitButton";
 import ClassPayStep from "./ClassPayStep";
 import { formatKes } from "@/lib/money";
+import { waHref } from "@/lib/whatsapp";
 import type { Cohort } from "@/lib/types";
+
+function WhatsAppLink({ sitePhone, text }: { sitePhone?: string; text: string }) {
+  if (!sitePhone) return null;
+  return (
+    <a
+      className="btn btn--ghost btn--sm"
+      href={waHref(sitePhone, text)}
+      target="_blank"
+      rel="noreferrer"
+    >
+      Message us on WhatsApp
+    </a>
+  );
+}
 
 function PayOrWaitStep({
   publicRef,
@@ -15,12 +30,14 @@ function PayOrWaitStep({
   amountKes,
   payInfo,
   cohortTitle,
+  sitePhone,
 }: {
   publicRef: string;
   reference: string;
   amountKes: number;
   payInfo: string;
   cohortTitle: string;
+  sitePhone?: string;
 }) {
   const [choice, setChoice] = useState<"choice" | "pay" | "waiting">("choice");
 
@@ -60,6 +77,10 @@ function PayOrWaitStep({
           <Link className="btn btn--ghost btn--sm" href={`/booking/${publicRef}`}>
             View booking status
           </Link>
+          <WhatsAppLink
+            sitePhone={sitePhone}
+            text={`Hi, I just reserved a spot in "${cohortTitle}" (ref ${reference}). I'll pay before the class starts.`}
+          />
         </div>
       </div>
     );
@@ -98,9 +119,11 @@ function PayOrWaitStep({
 export default function CohortBookingForm({
   cohorts,
   defaultCohortId,
+  sitePhone,
 }: {
   cohorts: Cohort[];
   defaultCohortId?: string;
+  sitePhone?: string;
 }) {
   const [state, action] = useActionState(bookCohort, BOOKING_FLOW_IDLE);
   const bookable = cohorts.filter((c) => c.status !== "CLOSED");
@@ -113,6 +136,7 @@ export default function CohortBookingForm({
         amountKes={state.amountKes}
         payInfo={state.payInfo}
         cohortTitle={state.cohortTitle}
+        sitePhone={sitePhone}
       />
     );
   }
@@ -138,6 +162,12 @@ export default function CohortBookingForm({
           {state.status === "waitlisted" ? "You're on the waitlist" : "Booking received"}
         </h2>
         <p className="form-feedback is-ok">{state.message}</p>
+        <p style={{ marginTop: 12 }}>
+          <WhatsAppLink
+            sitePhone={sitePhone}
+            text="Hi, I just booked a class on your website — following up here too!"
+          />
+        </p>
       </div>
     );
   }

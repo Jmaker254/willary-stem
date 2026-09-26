@@ -3,7 +3,7 @@
 import crypto from "node:crypto";
 import { prisma } from "@/lib/db";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
-import { sendNotification } from "@/lib/email";
+import { sendNotification, sendMail } from "@/lib/email";
 import { getSettings } from "@/lib/content";
 import { normalizePhone } from "@/lib/mpesa";
 import type { FieldErrors } from "@/lib/form";
@@ -15,6 +15,9 @@ import {
 import {
   type BookingFlowState,
 } from "@/lib/cohort-booking-state";
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.willaryrobotics.com";
 
 function err(message: string, fieldErrors?: FieldErrors): BookingFlowState {
   return { status: "error", message, fieldErrors };
@@ -96,6 +99,8 @@ export async function bookCohort(
     });
 
     const ref = shortRef(row.id);
+    const settings = await getSettings();
+
     await sendNotification(
       `Class booking — ${cohort.title} — ${row.name}`,
       `${row.name} <${row.email}> · ${phone}\n` +
@@ -108,21 +113,52 @@ export async function bookCohort(
         `\nOpen in admin: /admin/cohort-bookings/${row.id}`,
     );
 
-    if (waitlist)
+    if (waitlist) {
+      await sendMail(
+        row.email,
+        `You're on the waitlist — ${cohort.title}`,
+        `Hi ${row.name},\n\n` +
+          `Thanks for your interest in "${cohort.title}". It's full right now, so ` +
+          `you're on the waitlist (reference ${ref}). We'll email you the moment a ` +
+          `place opens up.\n\n— ${settings.siteName}`,
+      );
       return {
         status: "waitlisted",
         message:
           "That class is full — you're on the waitlist and we'll be in touch if a place opens.",
       };
+    }
 
-    if (!isPaid)
+    if (!isPaid) {
+      await sendMail(
+        row.email,
+        `Booking received — ${cohort.title}`,
+        `Hi ${row.name},\n\n` +
+          `We've received your booking for "${cohort.title}" (reference ${ref}).\n\n` +
+          `  ${cohort.startText}\n` +
+          `  ${cohort.scheduleText}\n` +
+          `${cohort.location ? `  ${cohort.location}\n` : ""}` +
+          `\nWe'll be in touch with any next steps. Check your booking any time: ` +
+          `${SITE_URL}/booking/${publicRef}\n\n— ${settings.siteName}`,
+      );
       return {
         status: "booked_free",
         message:
           "Booking received! We'll confirm your place and any details by email.",
       };
+    }
 
-    const settings = await getSettings();
+    await sendMail(
+      row.email,
+      `You're almost booked — ${cohort.title}`,
+      `Hi ${row.name},\n\n` +
+        `Thanks for applying for "${cohort.title}" (reference ${ref}).\n\n` +
+        `Price: KES ${cohort.priceAmountKes}. You can pay now by M-Pesa, or reserve ` +
+        `your spot and pay any time before the class starts.\n\n` +
+        `${settings.classPayInfo}\n\n` +
+        `Once you've paid, submit your M-Pesa code here: ${SITE_URL}/booking/${publicRef}\n\n` +
+        `— ${settings.siteName}`,
+    );
     return {
       status: "pay",
       publicRef,

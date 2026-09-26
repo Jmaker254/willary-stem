@@ -3,11 +3,13 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import Badge from "@/components/admin/Badge";
 import ConfirmButton from "@/components/admin/ConfirmButton";
+import { waHref } from "@/lib/whatsapp";
 import {
-  setCohortBookingStatus,
+  moveCohortBookingStatus,
   deleteCohortBooking,
   confirmClassPayment,
   rejectClassPayment,
+  sendBookingEmail,
 } from "@/actions/admin/leads";
 import { BookingStatus } from "@prisma/client";
 
@@ -18,10 +20,13 @@ const SITE_URL =
 
 export default async function CohortBookingDetail({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ emailed?: string }>;
 }) {
   const { id } = await params;
+  const { emailed } = await searchParams;
   const b = await prisma.cohortBooking.findUnique({
     where: { id },
     include: { cohort: true },
@@ -34,11 +39,14 @@ export default async function CohortBookingDetail({
     b.amountClaimedKes != null &&
     expected > 0 &&
     b.amountClaimedKes !== expected;
-  const waPhone = (b.phone ?? "").replace(/\D/g, "");
-  const waText = encodeURIComponent(
+  const statusUrl = `${SITE_URL}/booking/${b.publicRef ?? ""}`;
+  const confirmedWaText =
     `Hi ${b.name}, your place in "${b.cohort.title}" is confirmed. ` +
-      `Reference ${ref}. Status: ${SITE_URL}/booking/${b.publicRef ?? ""}`,
-  );
+    `Reference ${ref}. Status: ${statusUrl}`;
+  const reminderWaText =
+    `Hi ${b.name}, just a reminder to complete your payment of KES ${expected} ` +
+    `for "${b.cohort.title}" so we can get you ready for class. Reference ${ref}. ` +
+    `Details: ${statusUrl}`;
 
   return (
     <>
@@ -51,6 +59,12 @@ export default async function CohortBookingDetail({
         </h1>
         <Badge value={b.status} />
       </div>
+
+      {emailed && (
+        <div className="panel" style={{ borderColor: "var(--ok)" }}>
+          Email sent to {b.email}.
+        </div>
+      )}
 
       <div className="panel">
         <table className="admin-table">
@@ -172,10 +186,20 @@ export default async function CohortBookingDetail({
               Reject payment
             </ConfirmButton>
           </form>
-          {waPhone && (
+          {b.phone && expected > 0 && b.status !== "CONFIRMED" && (
             <a
               className="btn btn--ghost btn--sm"
-              href={`https://wa.me/${waPhone}?text=${waText}`}
+              href={waHref(b.phone, reminderWaText)}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Send payment reminder (WhatsApp)
+            </a>
+          )}
+          {b.phone && (
+            <a
+              className="btn btn--ghost btn--sm"
+              href={waHref(b.phone, confirmedWaText)}
               target="_blank"
               rel="noreferrer"
             >
@@ -183,28 +207,61 @@ export default async function CohortBookingDetail({
             </a>
           )}
         </div>
+        <p className="hint" style={{ marginTop: 10 }}>
+          These open WhatsApp with the message ready — you still tap send. Fully
+          automatic WhatsApp sending needs the WhatsApp Business API set up
+          separately; ask if you want that next.
+        </p>
       </div>
 
       <div className="panel">
-        <h2>Set status manually</h2>
-        <div className="inline-actions">
-          {Object.values(BookingStatus).map((st) => (
-            <form key={st} action={setCohortBookingStatus.bind(null, b.id, st)}>
-              <button
-                className="btn btn--ghost btn--sm"
-                type="submit"
-                disabled={st === b.status}
-              >
+        <h2>Move to a different status</h2>
+        <form action={moveCohortBookingStatus} className="inline-actions">
+          <input type="hidden" name="id" value={b.id} />
+          <select name="status" defaultValue={b.status}>
+            {Object.values(BookingStatus).map((st) => (
+              <option key={st} value={st}>
                 {st.toLowerCase().replace(/_/g, " ")}
-              </button>
-            </form>
-          ))}
-        </div>
+              </option>
+            ))}
+          </select>
+          <button className="btn btn--ghost btn--sm" type="submit">
+            Move
+          </button>
+        </form>
+      </div>
+
+      <div className="panel">
+        <h2>Send a direct email</h2>
+        <form action={sendBookingEmail.bind(null, b.id)}>
+          <div className="field">
+            <label htmlFor="em-subject">Subject</label>
+            <input
+              id="em-subject"
+              name="subject"
+              required
+              defaultValue={`Your booking for ${b.cohort.title}`}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="em-message">Message</label>
+            <textarea
+              id="em-message"
+              name="message"
+              rows={5}
+              required
+              defaultValue={`Hi ${b.name},\n\n`}
+            />
+          </div>
+          <button className="btn btn--primary btn--sm" type="submit">
+            Send email to {b.email}
+          </button>
+        </form>
       </div>
 
       <div className="panel">
         <form action={deleteCohortBooking.bind(null, b.id)}>
-          <ConfirmButton className="btn-link" message="Delete this booking?">
+          <ConfirmButton className="btn-link" message="Delete this booking? This can't be undone.">
             Delete booking
           </ConfirmButton>
         </form>

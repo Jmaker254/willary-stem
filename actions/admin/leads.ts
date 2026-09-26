@@ -39,15 +39,41 @@ export async function setRegistrationStatus(
   revalidatePath("/admin");
 }
 
-export async function setCohortBookingStatus(
-  id: string,
-  status: BookingStatus,
-): Promise<void> {
+const BOOKING_STATUSES = new Set(Object.values(BookingStatus));
+
+/** Bound to a <select name="status"> + hidden id in a single form — the "move to" dropdown. */
+export async function moveCohortBookingStatus(formData: FormData): Promise<void> {
+  const id = String(formData.get("id") ?? "");
+  const status = String(formData.get("status") ?? "");
+  if (!id || !BOOKING_STATUSES.has(status as BookingStatus)) return;
   const u = await guard("EDITOR");
-  await prisma.cohortBooking.update({ where: { id }, data: { status } });
+  await prisma.cohortBooking.update({
+    where: { id },
+    data: { status: status as BookingStatus },
+  });
   await audit(u.id, `status:${status}`, "CohortBooking", id);
   revalidatePath("/admin/cohort-bookings");
+  revalidatePath(`/admin/cohort-bookings/${id}`);
   revalidatePath("/admin");
+}
+
+/** A one-off custom email to a booking's contact, sent from the admin detail page. */
+export async function sendBookingEmail(
+  id: string,
+  formData: FormData,
+): Promise<void> {
+  const u = await guard("EDITOR");
+  const subject = String(formData.get("subject") ?? "").trim();
+  const message = String(formData.get("message") ?? "").trim();
+  if (!subject || !message) return;
+
+  const row = await prisma.cohortBooking.findUnique({ where: { id } });
+  if (!row) return;
+
+  await sendMail(row.email, subject, message);
+  await audit(u.id, "send-email", "CohortBooking", id);
+  revalidatePath(`/admin/cohort-bookings/${id}`);
+  redirect(`/admin/cohort-bookings/${id}?emailed=1`);
 }
 
 export async function deleteCohortBooking(id: string): Promise<void> {
