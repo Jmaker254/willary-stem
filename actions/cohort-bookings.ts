@@ -32,7 +32,7 @@ export async function bookCohort(
   formData: FormData,
 ): Promise<BookingFlowState> {
   // Honeypot — pretend it worked.
-  if ((formData.get("company") as string)?.trim())
+  if ((formData.get("hp_token") as string)?.trim())
     return {
       status: "booked_free",
       message: "Thanks — your booking request has been received.",

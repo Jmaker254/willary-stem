@@ -35,7 +35,7 @@ export async function registerForBuildFest(
   _prev: RegisterState,
   formData: FormData,
 ): Promise<RegisterState> {
-  if ((formData.get("company") as string)?.trim())
+  if ((formData.get("hp_token") as string)?.trim())
     return { status: "waitlisted", message: "Thanks — your registration has been received." };
 
   const ip = await clientIp();

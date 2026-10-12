@@ -21,7 +21,7 @@ export default function NewsletterForm({
       <div className="hp-field" aria-hidden>
         <label>
           Leave this empty
-          <input type="text" name="company" tabIndex={-1} autoComplete="off" />
+          <input type="text" name="hp_token" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
       <div style={{ display: "flex", gap: 12, maxWidth: 480, flexWrap: "wrap" }}>

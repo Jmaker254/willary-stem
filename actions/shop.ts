@@ -26,7 +26,7 @@ export async function requestOrder(
   formData: FormData,
 ): Promise<OrderState> {
   // Honeypot — pretend it worked.
-  if ((formData.get("company") as string)?.trim()) {
+  if ((formData.get("hp_token") as string)?.trim()) {
     return {
       status: "done",
       ref: "WS-000000",

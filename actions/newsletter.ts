@@ -11,7 +11,7 @@ export async function subscribeNewsletter(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  if ((formData.get("company") as string)?.trim())
+  if ((formData.get("hp_token") as string)?.trim())
     return ok("Thanks for subscribing!");
 
   const ip = await clientIp();

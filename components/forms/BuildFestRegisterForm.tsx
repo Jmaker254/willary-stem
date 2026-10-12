@@ -78,7 +78,7 @@ export default function BuildFestRegisterForm({
       <div className="hp-field" aria-hidden>
         <label>
           Leave this empty
-          <input type="text" name="company" tabIndex={-1} autoComplete="off" />
+          <input type="text" name="hp_token" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
 

@@ -22,7 +22,7 @@ async function handle<T extends z.ZodTypeAny>(
   formData: FormData,
 ): Promise<FormState> {
   // Honeypot: real users never fill this.
-  if ((formData.get("company") as string)?.trim()) return ok(THANKS);
+  if ((formData.get("hp_token") as string)?.trim()) return ok(THANKS);
 
   const ip = await clientIp();
   const rl = rateLimit(`submit:${ip}`, { limit: 6, windowMs: 60_000 });
