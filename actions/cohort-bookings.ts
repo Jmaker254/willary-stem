@@ -6,6 +6,7 @@ import { clientIp, rateLimit } from "@/lib/rate-limit";
 import { sendNotification, sendMail } from "@/lib/email";
 import { getSettings } from "@/lib/content";
 import { normalizePhone } from "@/lib/mpesa";
+import { parseMpesaMessage } from "@/lib/mpesa-message";
 import type { FieldErrors } from "@/lib/form";
 import {
   cohortBookingSchema,
@@ -210,7 +211,13 @@ export async function submitClassPayment(
       };
     }
 
-    const code = d.mpesaCode.toUpperCase();
+    const extracted = parseMpesaMessage(d.mpesaMessage);
+    if (!extracted)
+      return err(
+        "We couldn't read that message. Please paste the whole M-Pesa confirmation SMS exactly as you received it.",
+        { mpesaMessage: "Couldn't read this message" },
+      );
+    const { code, amountKes, paidAt } = extracted;
 
     // An M-Pesa code is only ever issued once — a repeat means it was reused
     // (deliberately or by mistake) from another payment.
@@ -221,22 +228,22 @@ export async function submitClassPayment(
     if (reused)
       return err(
         "That M-Pesa code has already been used for another booking. Please check your M-Pesa message and try again.",
-        { mpesaCode: "Already used on another booking" },
+        { mpesaMessage: "Already used on another booking" },
       );
 
     // The time on the M-Pesa message should sit between the application and now
     // — catches a stale/reused message pasted long after applying.
     const now = new Date();
     const BUFFER_MS = 5 * 60_000;
-    if (d.paidAt.getTime() < booking.createdAt.getTime() - BUFFER_MS)
+    if (paidAt.getTime() < booking.createdAt.getTime() - BUFFER_MS)
       return err(
         "The time on your M-Pesa message is before you applied — please check it and try again.",
-        { paidAt: "Before your application time" },
+        { mpesaMessage: "Before your application time" },
       );
-    if (d.paidAt.getTime() > now.getTime() + BUFFER_MS)
+    if (paidAt.getTime() > now.getTime() + BUFFER_MS)
       return err(
         "The time on your M-Pesa message is in the future — please check it and try again.",
-        { paidAt: "In the future" },
+        { mpesaMessage: "In the future" },
       );
 
     await prisma.cohortBooking.update({
@@ -244,8 +251,9 @@ export async function submitClassPayment(
       data: {
         status: "PENDING_CONFIRMATION",
         mpesaCode: code,
-        amountClaimedKes: d.amount,
-        paidAt: d.paidAt,
+        mpesaMessage: d.mpesaMessage,
+        amountClaimedKes: amountKes,
+        paidAt,
         paymentClaimedAt: now,
       },
     });
@@ -253,7 +261,7 @@ export async function submitClassPayment(
     const ref = shortRef(booking.id);
     const expected = booking.cohort.priceAmountKes;
     const appliedToPaidMin = Math.round(
-      (d.paidAt.getTime() - booking.createdAt.getTime()) / 60_000,
+      (paidAt.getTime() - booking.createdAt.getTime()) / 60_000,
     );
     await sendNotification(
       `Class payment claimed — ${booking.cohort.title} — ${booking.name}`,
@@ -261,7 +269,7 @@ export async function submitClassPayment(
         `Class: ${booking.cohort.title}\n` +
         `Reference: ${ref}\n` +
         `M-Pesa code: ${code}\n` +
-        `Amount claimed: KES ${d.amount}${expected && d.amount !== expected ? ` (expected KES ${expected})` : ""}\n` +
+        `Amount claimed: KES ${amountKes}${expected && amountKes !== expected ? ` (expected KES ${expected})` : ""}\n` +
         `Applied → paid on M-Pesa: ${appliedToPaidMin} min apart\n` +
         `\nConfirm in admin: /admin/cohort-bookings/${booking.id}`,
     );

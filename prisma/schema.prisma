@@ -400,6 +400,7 @@ model CohortBooking {
   status           BookingStatus @default(NEW)
   publicRef        String?       @unique
   mpesaCode        String?
+  mpesaMessage     String?
   amountClaimedKes Int?
   paidAt           DateTime?
   paymentClaimedAt DateTime?

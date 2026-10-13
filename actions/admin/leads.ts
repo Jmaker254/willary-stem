@@ -46,6 +46,14 @@ export async function moveCohortBookingStatus(formData: FormData): Promise<void>
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "");
   if (!id || !BOOKING_STATUSES.has(status as BookingStatus)) return;
+
+  // Confirming/rejecting always needs the timestamp + customer email + (on
+  // confirm) the WhatsApp group link — run that full flow even when the admin
+  // used this generic dropdown rather than the dedicated button, so the
+  // public status page and the customer are updated consistently either way.
+  if (status === "CONFIRMED") return confirmClassPayment(id);
+  if (status === "REJECTED") return rejectClassPayment(id);
+
   const u = await guard("EDITOR");
   await prisma.cohortBooking.update({
     where: { id },

@@ -207,15 +207,11 @@ export const cohortBookingSchema = z.object({
 
 export const classPaymentSchema = z.object({
   publicRef: str(64),
-  mpesaCode: z
+  mpesaMessage: z
     .string()
     .trim()
-    .regex(
-      /^[A-Za-z0-9]{8,15}$/,
-      "Enter the M-Pesa confirmation code from your SMS (e.g. TIA7X2K9LM)",
-    ),
-  amount: z.coerce.number().int().min(1).max(10_000_000),
-  paidAt: z.coerce.date(),
+    .min(20, "Paste the full M-Pesa confirmation message")
+    .max(2000),
 });
 
 const slug = (max = 100) =>

@@ -8,12 +8,6 @@ import SubmitButton from "./SubmitButton";
 import { formatKes } from "@/lib/money";
 import { waHref } from "@/lib/whatsapp";
 
-/** "YYYY-MM-DDTHH:mm" in the browser's local time, for a datetime-local default. */
-function localDatetimeValue(d: Date): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
 export default function ClassPayStep({
   publicRef,
   reference,
@@ -83,46 +77,25 @@ export default function ClassPayStep({
       <form action={action} style={{ marginTop: 18 }}>
         <input type="hidden" name="publicRef" value={publicRef} />
         <div className="field">
-          <label htmlFor="pay-code">M-Pesa confirmation code</label>
-          <input
-            id="pay-code"
-            name="mpesaCode"
-            placeholder="e.g. TIA7X2K9LM"
-            autoCapitalize="characters"
+          <label htmlFor="pay-message">Paste your M-Pesa confirmation message</label>
+          <textarea
+            id="pay-message"
+            name="mpesaMessage"
+            rows={4}
+            placeholder={
+              'e.g. "TIA7X2K9LM Confirmed. Ksh2,000.00 paid to WILLARY STEM. on 13/10/26 at 2:45 PM. New M-PESA balance is..."'
+            }
             required
           />
-          {fe.mpesaCode && <p className="field-error">{fe.mpesaCode}</p>}
-        </div>
-        <div className="field">
-          <label htmlFor="pay-amount">Amount you paid (KES)</label>
-          <input
-            id="pay-amount"
-            name="amount"
-            type="number"
-            inputMode="numeric"
-            defaultValue={amountKes}
-            required
-          />
-          {fe.amount && <p className="field-error">{fe.amount}</p>}
-        </div>
-        <div className="field">
-          <label htmlFor="pay-time">Date &amp; time on your M-Pesa message</label>
-          <input
-            id="pay-time"
-            name="paidAt"
-            type="datetime-local"
-            defaultValue={localDatetimeValue(new Date())}
-            required
-          />
-          {fe.paidAt && <p className="field-error">{fe.paidAt}</p>}
+          {fe.mpesaMessage && <p className="field-error">{fe.mpesaMessage}</p>}
           <p className="hint">
-            We check this against your application time to confirm the message
-            is genuine and recent.
+            Open the M-Pesa message on your phone and paste the whole thing —
+            we read the code, amount and time straight from it.
           </p>
         </div>
 
         <SubmitButton className="btn btn--primary btn--block" pendingText="Submitting…">
-          I&rsquo;ve paid — submit code
+          I&rsquo;ve paid — submit message
         </SubmitButton>
         {state.status === "error" && (
           <p className="form-feedback is-error" role="status">

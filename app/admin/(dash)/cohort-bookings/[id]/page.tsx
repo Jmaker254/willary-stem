@@ -154,6 +154,14 @@ export default async function CohortBookingDetail({
               <th>M-Pesa code (claimed)</th>
               <td>{b.mpesaCode ?? "—"}</td>
             </tr>
+            {b.mpesaMessage && (
+              <tr>
+                <th>Pasted message</th>
+                <td style={{ whiteSpace: "pre-wrap", fontSize: "0.85rem" }}>
+                  {b.mpesaMessage}
+                </td>
+              </tr>
+            )}
             <tr>
               <th>Amount claimed</th>
               <td style={mismatch ? { color: "var(--danger)", fontWeight: 700 } : undefined}>
