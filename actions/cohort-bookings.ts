@@ -156,7 +156,7 @@ export async function bookCohort(
         `Thanks for applying for "${cohort.title}" (reference ${ref}).\n\n` +
         `Price: KES ${cohort.priceAmountKes}. You can pay now by M-Pesa, or reserve ` +
         `your spot and pay any time before the class starts.\n\n` +
-        `Pay Bill: ${settings.classPaybillNumber}\n` +
+        `M-Pesa number: ${settings.classPaybillNumber}\n` +
         `${settings.classPayInfo}\n\n` +
         `Once you've paid, submit your M-Pesa code here: ${SITE_URL}/booking/${publicRef}\n\n` +
         `— ${settings.siteName}`,

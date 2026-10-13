@@ -39,7 +39,7 @@ export const SETTINGS: SiteSettings = {
   buildFestTicketKes: "500",
   classPaybillNumber: "000000",
   classPayInfo:
-    "Lipa na M-Pesa → Pay Bill → use the Business number above → Account: the reference shown below → enter the exact amount shown. Once M-Pesa sends you the confirmation SMS, paste the confirmation code and the time shown on that message below.",
+    "Lipa na M-Pesa → Send Money → enter the M-Pesa number above → enter the exact amount shown → confirm with your PIN. Once M-Pesa sends you the confirmation SMS, paste the whole message below.",
   logoUrl: "",
   photosAlbumUrl: "",
   social: {

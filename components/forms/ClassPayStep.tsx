@@ -66,11 +66,12 @@ export default function ClassPayStep({
 
       <div className="pay-box">
         <p className="pay-paybill">
-          Pay Bill: <strong>{paybill}</strong>
+          M-Pesa number: <strong>{paybill}</strong>
         </p>
         <p style={{ whiteSpace: "pre-wrap", margin: 0 }}>{payInfo}</p>
         <p className="pay-ref">
-          Use this as the account / reference: <strong>{reference}</strong>
+          Your booking reference: <strong>{reference}</strong> — mention it if
+          you message us so we can match your payment faster.
         </p>
       </div>
 

@@ -67,7 +67,7 @@ function PayOrWaitStep({
           starts to confirm it.
         </p>
         <p className="form-note">
-          Amount: {formatKes(amountKes)} to Pay Bill {paybill}. We&rsquo;ll
+          Amount: {formatKes(amountKes)} to M-Pesa number {paybill}. We&rsquo;ll
           follow up by email as a reminder — you can also come back and pay
           whenever you&rsquo;re ready.
         </p>

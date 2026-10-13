@@ -105,23 +105,23 @@ export default async function BookingStatusPage({
               <p>
                 To hold your place in <strong>{c.title}</strong>, pay{" "}
                 <strong>{formatKes(c.priceAmountKes)}</strong> and submit your
-                M-Pesa code.
+                M-Pesa message.
               </p>
               <div className="pay-box">
                 <p className="pay-paybill">
-                  Pay Bill: <strong>{settings.classPaybillNumber}</strong>
+                  M-Pesa number: <strong>{settings.classPaybillNumber}</strong>
                 </p>
                 <p style={{ whiteSpace: "pre-wrap", margin: 0 }}>
                   {settings.classPayInfo}
                 </p>
                 <p className="pay-ref">
-                  Use this as the account / reference:{" "}
-                  <strong>{booking.ref}</strong>
+                  Your booking reference: <strong>{booking.ref}</strong> —
+                  mention it if you message us.
                 </p>
               </div>
               <p style={{ marginTop: 14 }}>
                 <Link className="btn btn--primary" href="/programs#book">
-                  Go to the booking form to submit your code
+                  Go to the booking form to submit your message
                 </Link>
               </p>
             </div>
