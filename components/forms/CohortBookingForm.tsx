@@ -219,15 +219,18 @@ export default function CohortBookingForm({
         {fe.email && <p className="field-error">{fe.email}</p>}
       </div>
       <div className="field">
-        <label htmlFor="b-phone">Phone / WhatsApp (the number you&rsquo;ll pay from)</label>
+        <label htmlFor="b-phone">Phone / WhatsApp</label>
         <input
           id="b-phone"
           name="phone"
           type="tel"
           inputMode="tel"
-          placeholder="07XX XXX XXX"
+          placeholder="07XX XXX XXX or +237 6XX XXX XXX"
           required
         />
+        <p className="hint">
+          Outside Kenya? Include your country code, e.g. +237 653 183 727.
+        </p>
         {fe.phone && <p className="field-error">{fe.phone}</p>}
       </div>
 

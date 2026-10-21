@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 import { sendNotification, sendMail } from "@/lib/email";
 import { getSettings } from "@/lib/content";
-import { normalizePhone } from "@/lib/mpesa";
+import { normalizeContactPhone } from "@/lib/phone";
 import { parseMpesaMessage } from "@/lib/mpesa-message";
 import type { FieldErrors } from "@/lib/form";
 import {
@@ -52,10 +52,10 @@ export async function bookCohort(
 
   const d = parsed.data;
 
-  const phone = normalizePhone(d.phone);
+  const phone = normalizeContactPhone(d.phone);
   if (!phone)
     return err("Please check the highlighted fields.", {
-      phone: "Enter a valid Safaricom number, e.g. 0796 815 446",
+      phone: "Enter a valid phone number, with country code if outside Kenya (e.g. +237 653 183 727)",
     });
 
   try {

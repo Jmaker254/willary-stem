@@ -198,7 +198,7 @@ export const cohortBookingSchema = z.object({
   phone: z
     .string()
     .trim()
-    .min(9, "Enter the Safaricom number you'll pay from (e.g. 0796 815 446)")
+    .min(9, "Enter a valid phone number, with country code if outside Kenya")
     .max(20),
   learnerName: optStr(120),
   learnerAge: optStr(40),
